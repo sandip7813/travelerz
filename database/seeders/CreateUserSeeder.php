@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class CreateUserSeeder extends Seeder
 {
@@ -17,6 +18,7 @@ class CreateUserSeeder extends Seeder
     {
         $users = [
                 [
+                    'uuid' => (string) Str::uuid(),
                     'name' => 'User',
                     'email' => 'user@test.com',
                     'phone' => 123456789,
@@ -25,6 +27,7 @@ class CreateUserSeeder extends Seeder
                     'status' => 1
                 ],
                 [
+                    'uuid' => (string) Str::uuid(),
                     'name' => 'Business',
                     'email' => 'business@test.com',
                     'phone' => 9901234567,
@@ -33,6 +36,7 @@ class CreateUserSeeder extends Seeder
                     'status' => 1
                 ],
                 [
+                    'uuid' => (string) Str::uuid(),
                     'name' => 'Admin',
                     'email' => 'admin@test.com',
                     'phone' => 5981234567,

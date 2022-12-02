@@ -26,5 +26,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/my-profile', [AuthController::class, 'myProfile']); 
+    Route::post('/verify-otp', [AuthController::class, 'verifyOtp']); 
+    Route::post('/resend-otp', [AuthController::class, 'resendOtp']); 
 });
 
