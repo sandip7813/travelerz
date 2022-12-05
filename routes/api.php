@@ -28,5 +28,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::get('/my-profile', [AuthController::class, 'myProfile']); 
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']); 
     Route::post('/resend-otp', [AuthController::class, 'resendOtp']); 
+    Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
+    Route::get('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/reset-password-submit', [AuthController::class, 'resetPasswordSubmit']);
 });
 

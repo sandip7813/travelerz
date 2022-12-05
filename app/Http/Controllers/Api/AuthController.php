@@ -6,21 +6,25 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use App\Models\OtpVerification;
+use App\Models\PasswordReset;
 
 use Auth;
 use Validator;
 use Carbon\Carbon;
-
-use App\Models\OtpVerification;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailVerificationOtp;
 use App\Mail\OtpVerificationSuccessful;
+use App\Mail\ResetPassword;
+use App\Mail\PasswordChangedSuccessful;
 
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'verifyOtp', 'resendOtp']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'verifyOtp', 'resendOtp', 'forgetPassword', 'resetPassword', 'resetPasswordSubmit']]);
     }
 
     public function register(Request $request){
@@ -79,15 +83,15 @@ class AuthController extends Controller
         $token = auth('api')->attempt($validator->validated());
 
         if( !$token ){
-            return response()->json(['error' => true, 'message' => 'Unauthorized'], 401);
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
         if( !auth('api')->attempt(['email' => $request->email, 'password' => $request->password, 'status' => 1]) ){
-            return response()->json(['error' => true, 'message' => 'User Not Active'], 400);
+            return response()->json(['success' => false, 'message' => 'User Not Active'], 400);
         }
 
         if( !auth('api')->attempt(['email' => $request->email, 'password' => $request->password, 'role' => 0]) ){
-            return response()->json(['error' => true, 'message' => 'Invalid User'], 400);
+            return response()->json(['success' => false, 'message' => 'Invalid User'], 400);
         }
 
         return $this->createToken($token);
@@ -134,18 +138,18 @@ class AuthController extends Controller
                                         ->first();
         
         if( !isset($verify_otp->id) ){
-            return response()->json(['error' => true, 'message' => 'Incorrect OTP'], 400);
+            return response()->json(['success' => false, 'message' => 'Incorrect OTP'], 400);
         }
         if($verify_otp->status == 'used'){
-            return response()->json(['error' => true, 'message' => 'OTP was used!'], 400);
+            return response()->json(['success' => false, 'message' => 'OTP was used!'], 400);
         }
 
-        $current_time = \Carbon\Carbon::now();
+        $current_time = Carbon::now();
     
-        $otp_created_in_minutes = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $verify_otp->created_at)->diffInMinutes($current_time);
+        $otp_created_in_minutes = Carbon::createFromFormat('Y-m-d H:i:s', $verify_otp->created_at)->diffInMinutes($current_time);
     
         if( $otp_created_in_minutes > 5 ){
-            return response()->json(['error' => true, 'message' => 'OTP Expired!'], 400);
+            return response()->json(['success' => false, 'message' => 'OTP Expired!'], 400);
         }
 
         //+++++++++++++++ UPDATE OTP TABLE :: Start +++++++++++++++//
@@ -184,40 +188,151 @@ class AuthController extends Controller
     }
 
     public function resendOtp(Request $request){
-        $user_uuid = $request->user_uuid ?? null;
-        $otp_type = $request->otp_type ?? 'email';
+        try{
+            $user_uuid = $request->user_uuid ?? null;
+            $otp_type = $request->otp_type ?? 'email';
 
-        $user = User::where('uuid', $user_uuid)->first();
+            $user = User::where('uuid', $user_uuid)->first();
 
-        if( !isset($user->id) ){
-            return response()->json(['error' => true, 'message' => 'User not found!'], 400);
+            if( !isset($user->id) ){
+                return response()->json(['success' => false, 'message' => 'User not found!'], 400);
+            }
+            if( in_array($otp_type, ['email', 'email_and_mobile']) && !is_null($user->email_verified_at) ){
+                return response()->json(['success' => false, 'message' => 'User email id already verified!'], 400);
+            }
+            
+            $email_otp = OtpVerification::generate_otp();
+            
+            if( in_array($otp_type, ['email', 'email_and_mobile']) ){
+                $mailDetails = [
+                    'name' => $user->name,
+                    'otp' => $email_otp
+                ];
+
+                Mail::to($user->email)->send(new EmailVerificationOtp($mailDetails));
+
+                OtpVerification::where('user_uuid', $user_uuid)->update(['status' => 'cancelled']);
+
+                OtpVerification::create([
+                    'otp' => $email_otp,
+                    'user_uuid' => $user_uuid,
+                    'otp_type' => 'email'
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP sent successfully!',
+                'user_uuid' => $user_uuid
+            ], 201);
         }
-        if( in_array($otp_type, ['email', 'email_and_mobile']) && !is_null($user->email_verified_at) ){
-            return response()->json(['error' => true, 'message' => 'User email id already verified!'], 400);
+        catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
-        
-        $email_otp = OtpVerification::generate_otp();
-        
-        if( in_array($otp_type, ['email', 'email_and_mobile']) ){
+    }
+
+    public function forgetPassword(Request $request){
+        try{
+            $email = $request->email ?? null;
+
+            if( is_null($email) ){
+                return response()->json(['success' => false, 'message' => 'Email not found!'], 400);
+            }
+
+            $user = User::where('email', $email)->first();
+
+            if( !isset($user->id) ){
+                return response()->json(['success' => false, 'message' => 'User not found!'], 400);
+            }
+
+            $token = Str::random(50);
+            $url = config('app.url') . '/reset-password?token=' . $token;
+            
             $mailDetails = [
                 'name' => $user->name,
-                'otp' => $email_otp
+                'token' => $token
             ];
 
-            Mail::to($user->email)->send(new EmailVerificationOtp($mailDetails));
+            Mail::to($user->email)->send(new ResetPassword($mailDetails));
 
-            OtpVerification::where('user_uuid', $user_uuid)->update(['status' => 'cancelled']);
+            $current_time = Carbon::now()->format('Y-m-d H:i:s');
 
-            OtpVerification::create([
-                'otp' => $email_otp,
-                'user_uuid' => $user_uuid,
-                'otp_type' => 'email'
-            ]);
+            PasswordReset::updateOrCreate(
+                ['email' => $email],
+                [
+                    'email' => $email,
+                    'token' => $token,
+                    'created_at' => $current_time
+                ]
+            );
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Please check your email to reset your password',
+                'reset_password_url' => $url
+            ], 200);
         }
+        catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
 
-        return response()->json([
-            'message' => 'OTP sent successfully!',
-            'user_uuid' => $user_uuid
-        ], 201);
+    public function resetPassword(Request $request){
+        try{
+            $token = $request->token ?? null;
+
+            if( !is_null($token) ){
+                return response()->json(['success' => false, 'message' => 'Token not found!'], 400);
+            }
+
+            $resetData = PasswordReset::where('token', $token)->first();
+
+            if( !isset($resetData->email) ){
+                return response()->json(['success' => false, 'message' => 'Invalid token!'], 400);
+            }
+
+            $user = User::where('email', $email)->first();
+
+            return response()->json([
+                'success' => true,
+                'user' => $user->uuid
+            ], 201);
+        }
+        catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function resetPasswordSubmit(Request $request){
+        try{
+            $request->validate([
+                'password' => 'required|string|min:6|confirmed',
+                'user_uuid' => 'required'
+            ]);
+
+            $user_uuid = $request->user_uuid ?? null;
+
+            $user = User::where('uuid', $user_uuid)->first();
+
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            PasswordReset::where('email', $user->email)->delete();
+
+            $mailDetails = [
+                'name' => $user->name,
+            ];
+
+            Mail::to($user->email)->send(new PasswordChangedSuccessful($mailDetails));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password updated successfully!',
+                'user_uuid' => $user_uuid
+            ], 201);
+        }
+        catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 }
