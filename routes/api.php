@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
-    Route::get('/my-profile', [AuthController::class, 'myProfile']); 
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']); 
     Route::post('/resend-otp', [AuthController::class, 'resendOtp']); 
     Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
@@ -33,3 +33,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::post('/reset-password-submit', [AuthController::class, 'resetPasswordSubmit']);
 });
 
+Route::group(['middleware' => 'api'], function(){
+    Route::get('/my/profile', [UserController::class, 'myProfile']); 
+    Route::post('user/add-interest', [UserController::class, 'addInterest']);
+});

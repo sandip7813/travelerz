@@ -97,9 +97,9 @@ class AuthController extends Controller
         return $this->createToken($token);
     }
 
-    public function myProfile() {
+    /* public function myProfile() {
         return response()->json(auth('api')->user());
-    }
+    } */
 
     public function logout(){
         auth('api')->logout();
@@ -184,7 +184,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'User verification successful!',
             'user_uuid' => $user_uuid
-        ], 201);
+        ], 200);
     }
 
     public function resendOtp(Request $request){
@@ -296,7 +296,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => true,
                 'user' => $user->uuid
-            ], 201);
+            ], 200);
         }
         catch(\Exception $e){
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
@@ -329,7 +329,7 @@ class AuthController extends Controller
                 'success' => true,
                 'message' => 'Password updated successfully!',
                 'user_uuid' => $user_uuid
-            ], 201);
+            ], 200);
         }
         catch(\Exception $e){
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
