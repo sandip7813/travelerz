@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\InterestUser;
 
+use App\Helpers\UserHelper;
+
 use Auth;
 
 class UserController extends Controller
@@ -20,9 +22,7 @@ class UserController extends Controller
     }
 
     public function myProfile() {
-        $user_data = $this->user;
-        $user_data->load('interests');
-        
+        $user_data = UserHelper::my_full_info();
         return response()->json($user_data);
     }
 

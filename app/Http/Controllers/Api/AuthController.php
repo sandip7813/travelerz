@@ -97,10 +97,6 @@ class AuthController extends Controller
         return $this->createToken($token);
     }
 
-    /* public function myProfile() {
-        return response()->json(auth('api')->user());
-    } */
-
     public function logout(){
         auth('api')->logout();
         return response()->json(['message' => 'User signed out successfully!']);

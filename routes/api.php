@@ -25,7 +25,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']); 
     Route::post('/resend-otp', [AuthController::class, 'resendOtp']); 
     Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
