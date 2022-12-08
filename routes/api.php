@@ -34,6 +34,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
 });
 
 Route::group(['middleware' => 'api'], function(){
-    Route::get('/my/profile', [UserController::class, 'myProfile']); 
+    Route::get('/my/profile', [UserController::class, 'myProfile']);
+    Route::post('/my/edit-profile', [UserController::class, 'editProfile']);
     Route::post('user/add-interest', [UserController::class, 'addInterest']);
 });
