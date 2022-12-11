@@ -12,6 +12,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Str;
 
 use App\Models\Interest;
+use App\Models\Medias;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -89,5 +90,19 @@ class User extends Authenticatable implements JWTSubject
 
     public function interests(){
         return $this->belongsToMany(Interest::class);
+    }
+
+    public function profile_picture(){
+        return $this->hasOne(Medias::class, 'user_id', 'id')
+                    ->where('file_type', 'image')
+                    ->where('media_type', 'user_profile')
+                    ->where('is_active', 1);
+    }
+
+    public function banner_picture(){
+        return $this->hasOne(Medias::class, 'user_id', 'id')
+                    ->where('file_type', 'image')
+                    ->where('media_type', 'user_banner')
+                    ->where('is_active', 1);
     }
 }

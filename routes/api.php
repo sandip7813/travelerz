@@ -36,5 +36,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
 Route::group(['middleware' => 'api'], function(){
     Route::get('/my/profile', [UserController::class, 'myProfile']);
     Route::post('/my/edit-profile', [UserController::class, 'editProfile']);
+    Route::post('/my/upload-profile-picture', [UserController::class, 'uploadProfilePicture']);
+    Route::post('/my/upload-banner-picture', [UserController::class, 'uploadBannerPicture']);
+    Route::post('/my/delete-picture', [UserController::class, 'deletePicture']);
     Route::post('user/add-interest', [UserController::class, 'addInterest']);
 });
