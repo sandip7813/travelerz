@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\InterestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,3 +43,6 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/my/delete-picture', [UserController::class, 'deletePicture']);
     Route::post('user/add-interest', [UserController::class, 'addInterest']);
 });
+
+Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);
+Route::get('/interest/all', [InterestController::class, 'getAllActiveInterests']);

@@ -57,10 +57,10 @@ class InterestSeeder extends Seeder
                 'name' => 'Museums',
                 'slug' => 'museums',
             ],
-    ];
-    foreach($interests as $interest)
-    {
-        Interest::create($interest);
-    }
+        ];
+        foreach($interests as $interest)
+        {
+            Interest::create($interest);
+        }
     }
 }

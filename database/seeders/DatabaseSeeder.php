@@ -7,6 +7,7 @@ use Illuminate\Database\Seeder;
 
 use Database\Seeders\CreateUserSeeder;
 use Database\Seeders\InterestSeeder;
+use Database\Seeders\CategoriesSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CreateUserSeeder::class,
             InterestSeeder::class,
+            CategoriesSeeder::class,
         ]);
     }
 }
