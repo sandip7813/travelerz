@@ -105,4 +105,16 @@ class User extends Authenticatable implements JWTSubject
                     ->where('media_type', 'user_banner')
                     ->where('is_active', 1);
     }
+
+    public function followings(){
+        return $this->belongsToMany(User::class, 'follower_user', 'follower_id', 'following_id');
+    }
+
+    public function followers(){
+        return $this->belongsToMany(User::class, 'follower_user', 'following_id', 'follower_id');
+    }
+
+    public function blocked_users(){
+        return $this->belongsToMany(User::class, 'block_user', 'user_id', 'blocked_user_id');
+    }
 }

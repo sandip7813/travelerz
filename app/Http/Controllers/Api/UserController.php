@@ -163,4 +163,141 @@ class UserController extends Controller
             'message' => 'Interests added successfully!'
         ], 200);
     }
+
+    public function followUser(Request $request){
+        $following_uuid = $request->following_uuid ?? null;
+        
+        if( is_null($following_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid following uuid provided!'], 400);
+        }
+
+        $following_user = UserHelper::user_full_info($following_uuid);
+        $following_id = $following_user->id ?? null;
+        $following_name = $following_user->name ?? null;
+
+        if( !isset($following_id) ){
+            return response()->json(['success' => false, 'message' => 'No user found!'], 400);
+        }
+
+        $user = $this->user;
+
+        $user_blocked = $following_user->blocked_users()->where('user_id', $user->id)->exists();
+
+        if($user_blocked){
+            return response()->json(['success' => false, 'message' => 'You are blocked by ' . $following_name ], 400);
+        }
+
+        $follower = $user->followings()->where('following_id', $following_id)->first();
+
+        if( isset($follower->id) ){
+            return response()->json(['success' => false, 'message' => 'You are already following ' . $following_name], 400);
+        }
+
+        $user->followings()->attach($following_user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'You are now successfully following ' . $following_name,
+            'user' => $following_user
+        ], 200);
+    }
+
+    public function unfollowUser(Request $request){
+        $following_uuid = $request->following_uuid ?? null;
+        
+        if( is_null($following_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid following uuid provided!'], 400);
+        }
+
+        $following_user = User::where('uuid', $following_uuid)->first();
+        $following_id = $following_user->id ?? null;
+        $following_name = $following_user->name ?? null;
+
+        if( !isset($following_id) ){
+            return response()->json(['success' => false, 'message' => 'No user found!'], 400);
+        }
+
+        $user = $this->user;
+
+        $follower = $user->followings()->where('following_id', $following_id)->first();
+
+        if( !isset($follower->id) ){
+            return response()->json(['success' => false, 'message' => 'You are not following ' . $following_name], 400);
+        }
+
+        $user->followings()->detach($following_user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'You have unfollowed ' . $following_name,
+        ], 200);
+    }
+
+    public function blockUser(Request $request){
+        $block_user_uuid = $request->block_user_uuid ?? null;
+        
+        if( is_null($block_user_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid uuid provided!'], 400);
+        }
+
+        $block_user = UserHelper::user_full_info($block_user_uuid);
+        $block_user_id = $block_user->id ?? null;
+        $block_user_name = $block_user->name ?? null;
+
+        if( !isset($block_user_id) ){
+            return response()->json(['success' => false, 'message' => 'No user found!'], 400);
+        }
+
+        $user = $this->user;
+
+        $block = $user->blocked_users()->where('blocked_user_id', $block_user_id)->first();
+
+        if( isset($block->id) ){
+            return response()->json(['success' => false, 'message' => 'You have already blocked ' . $block_user_name], 400);
+        }
+
+        $user->blocked_users()->attach($block_user);
+
+        //+++++++++++++ FORCED UNFOLLOW IF USER BLOCKED :: Start +++++++++++++//
+        $user->followings()->detach($block_user);
+        $block_user->followings()->detach($user);
+        //+++++++++++++ FORCED UNFOLLOW IF USER BLOCKED :: End +++++++++++++//
+
+        return response()->json([
+            'success' => true,
+            'message' => 'You have blocked ' . $block_user_name,
+            'user' => $block_user
+        ], 200);
+    }
+
+    public function unblockUser(Request $request){
+        $block_user_uuid = $request->block_user_uuid ?? null;
+        
+        if( is_null($block_user_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid uuid provided!'], 400);
+        }
+
+        $block_user = User::where('uuid', $block_user_uuid)->first();
+        $block_user_id = $block_user->id ?? null;
+        $block_user_name = $block_user->name ?? null;
+
+        if( !isset($block_user_id) ){
+            return response()->json(['success' => false, 'message' => 'No user found!'], 400);
+        }
+
+        $user = $this->user;
+
+        $block = $user->blocked_users()->where('blocked_user_id', $block_user_id)->first();
+
+        if( !isset($block->id) ){
+            return response()->json(['success' => false, 'message' => $block_user_name . ' is not blocked by you!'], 400);
+        }
+
+        $user->blocked_users()->detach($block_user);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'You have unblocked ' . $block_user_name,
+        ], 200);
+    }
 }

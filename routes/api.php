@@ -41,7 +41,12 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/my/upload-profile-picture', [UserController::class, 'uploadProfilePicture']);
     Route::post('/my/upload-banner-picture', [UserController::class, 'uploadBannerPicture']);
     Route::post('/my/delete-picture', [UserController::class, 'deletePicture']);
+
     Route::post('user/add-interest', [UserController::class, 'addInterest']);
+    Route::post('user/follow', [UserController::class, 'followUser']);
+    Route::post('user/unfollow', [UserController::class, 'unfollowUser']);
+    Route::post('user/block', [UserController::class, 'blockUser']);
+    Route::post('user/unblock', [UserController::class, 'unblockUser']);
 });
 
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);

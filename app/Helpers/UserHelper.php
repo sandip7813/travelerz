@@ -2,6 +2,7 @@
 namespace App\Helpers;
 
 use App\Models\Medias;
+use App\Models\User;
 
 use Image;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,7 @@ class UserHelper
     public static function my_full_info(){
         if (auth('api')->check()) {
             $user = auth('api')->user();
-            $user->load(['interests',  'profile_picture', 'banner_picture']);
+            $user->load(['interests', 'profile_picture', 'banner_picture', 'followings', 'followers']);
 
             return $user;
         }
@@ -89,5 +90,15 @@ class UserHelper
         }
 
         return $response_array;
+    }
+
+    public static function user_full_info($uuid){
+        $user = User::where('uuid', $uuid)->first();
+
+        if( isset($user->id) ){
+            $user->load(['interests', 'profile_picture', 'banner_picture']);
+        }
+
+        return $user;
     }
 }
