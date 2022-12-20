@@ -11,9 +11,8 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-
+    public function __construct(){
+        //
     }
 
     /**
@@ -21,18 +20,15 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function userHome()
-    {
-        return view('home',["msg"=>"I am user role"]);
+    public function userHome(){
+        return view('home', ['msg' => 'I am user role']);
     }
 
-    public function editorHome()
-    {
-        return view('home',["msg"=>"I am Editor role"]);
+    public function businessHome(){
+        return view('home', ['msg' => 'I am Business role']);
     }
 
-    public function adminHome()
-    {
-        return view('home',["msg"=>"I am Admin role"]);
+    public function adminHome(){
+        return view('home', ['msg' => 'I am Admin role']);
     }
 }
