@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -26,13 +29,17 @@ Auth::routes(['register' => false]);
 }); */
 
 // Business Route
-Route::middleware(['auth','user-role:business'])->group(function()
-{
+Route::middleware(['auth','user-role:business'])->group(function(){
     Route::get('/business/home', [HomeController::class, 'businessHome'])->name('home.business');
 });
 
 // Admin Route
-Route::middleware(['auth','user-role:admin'])->group(function()
-{
+/* Route::middleware(['auth','user-role:admin'])->group(function(){
     Route::get('/admin/home', [HomeController::class, 'adminHome'])->name('home.admin');
+}); */
+
+//+++++++++++++++++++++++ ADMIN ROUTE :: Start +++++++++++++++++++++++//
+Route::middleware(['auth','user-role:admin'])->prefix('admin')->group(function(){
+    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
 });
+//+++++++++++++++++++++++ ADMIN ROUTE :: End +++++++++++++++++++++++//

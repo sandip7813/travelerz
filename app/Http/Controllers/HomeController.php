@@ -28,7 +28,7 @@ class HomeController extends Controller
         return view('home', ['msg' => 'I am Business role']);
     }
 
-    public function adminHome(){
+    /* public function adminHome(){
         return view('home', ['msg' => 'I am Admin role']);
-    }
+    } */
 }
