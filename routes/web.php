@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,5 +42,8 @@ Route::middleware(['auth','user-role:business'])->group(function(){
 //+++++++++++++++++++++++ ADMIN ROUTE :: Start +++++++++++++++++++++++//
 Route::middleware(['auth','user-role:admin'])->prefix('admin')->group(function(){
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
+
+    Route::resource('categories', CategoryController::class, ['names' => 'admin.category']);
+    Route::post('categories/change-status', [CategoryController::class, 'changeCategoryStatus'])->name('admin.category.change-status');
 });
 //+++++++++++++++++++++++ ADMIN ROUTE :: End +++++++++++++++++++++++//
