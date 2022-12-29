@@ -23,7 +23,7 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-               {{-- +++++++++++++++++++++++++ CATEGORIES :: Start +++++++++++++++++++++++++ --}}
+              {{-- +++++++++++++++++++++++++ CATEGORIES :: Start +++++++++++++++++++++++++ --}}
               <li class="nav-item @if (Request::is('admin/categories') || Request::is('admin/categories/*')) menu-open @endif">
                 <a href="javascript: void(0);" class="nav-link @if (Request::is('admin/categories') || Request::is('admin/categories/*')) active @endif">
                   <i class="nav-icon fas fa-th"></i>
@@ -46,6 +46,24 @@
                 </ul>
               </li>
               {{-- +++++++++++++++++++++++++ CATEGORIES :: End +++++++++++++++++++++++++ --}}
+
+              {{-- +++++++++++++++++++++++++ MY ACCOUNT :: Start +++++++++++++++++++++++++ --}}
+              <li class="nav-item @if (Request::is('admin/myaccount') || Request::is('admin/myaccount/*')) menu-open @endif">
+                <a href="javascript: void(0);" class="nav-link @if (Request::is('admin/myaccount') || Request::is('admin/myaccount/*')) active @endif">
+                  <i class="nav-icon fas fa-user-cog"></i>
+                  <p>My Account <i class="right fas fa-angle-left"></i></p>
+                </a>
+
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{{ route('admin.myaccount.change-password') }}" class="nav-link @if (Request::is('admin/myaccount/change-password')) active @endif">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Change Password</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              {{-- +++++++++++++++++++++++++ MY ACCOUNT :: End +++++++++++++++++++++++++ --}}
 
               {{-- LOGOUT :: Start --}}
               <li class="nav-item">

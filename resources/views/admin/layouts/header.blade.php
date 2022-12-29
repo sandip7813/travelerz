@@ -14,10 +14,10 @@
         <i class="fas fa-user-cog"></i>
       </a>
       <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-        <a href="#" class="dropdown-item"><i class="fas fa-user mr-2"></i> Update Profile</a>
+        <a href="javascript: void(0);" class="dropdown-item"><i class="fas fa-user mr-2"></i> Update Profile</a>
         <div class="dropdown-divider"></div>
 
-        <a href="#" class="dropdown-item"><i class="fas fa-lock mr-2"></i> Change Password</a>
+        <a href="{{ route('admin.myaccount.change-password') }}" class="dropdown-item"><i class="fas fa-lock mr-2"></i> Change Password</a>
         <div class="dropdown-divider"></div>
 
         <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
