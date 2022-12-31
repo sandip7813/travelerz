@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MyAccountController;
+use App\Http\Controllers\Admin\UsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,5 +50,7 @@ Route::middleware(['auth','user-role:admin'])->prefix('admin')->group(function()
 
     Route::get('myaccount/change-password', [MyAccountController::class, 'changePassword'])->name('admin.myaccount.change-password');
     Route::post('myaccount/change-password-submit', [MyAccountController::class, 'changePasswordSubmit'])->name('admin.myaccount.change-password-submit');
+
+    Route::resource('users', UsersController::class, ['names' => 'admin.users']);
 });
 //+++++++++++++++++++++++ ADMIN ROUTE :: End +++++++++++++++++++++++//

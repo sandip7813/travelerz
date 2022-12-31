@@ -23,6 +23,15 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
+              {{-- +++++++++++++++++++++++++ USERS :: Start +++++++++++++++++++++++++ --}}
+              <li class="nav-item @if (Request::is('admin/users') || Request::is('admin/users/*')) menu-open @endif">
+                <a href="{{ route('admin.users.index') }}" class="nav-link @if (Request::is('admin/users') || Request::is('admin/users/*')) active @endif">
+                  <i class="nav-icon fas fa-users"></i>
+                  <p>Users </p>
+                </a>
+              </li>
+              {{-- +++++++++++++++++++++++++ USERS :: End +++++++++++++++++++++++++ --}}
+
               {{-- +++++++++++++++++++++++++ CATEGORIES :: Start +++++++++++++++++++++++++ --}}
               <li class="nav-item @if (Request::is('admin/categories') || Request::is('admin/categories/*')) menu-open @endif">
                 <a href="javascript: void(0);" class="nav-link @if (Request::is('admin/categories') || Request::is('admin/categories/*')) active @endif">
