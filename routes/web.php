@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MyAccountController;
 use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\Admin\GeneralController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,9 +33,9 @@ Auth::routes(['register' => false]);
 }); */
 
 // Business Route
-Route::middleware(['auth','user-role:business'])->group(function(){
+/* Route::middleware(['auth','user-role:business'])->group(function(){
     Route::get('/business/home', [HomeController::class, 'businessHome'])->name('home.business');
-});
+}); */
 
 // Admin Route
 /* Route::middleware(['auth','user-role:admin'])->group(function(){
@@ -52,5 +53,7 @@ Route::middleware(['auth','user-role:admin'])->prefix('admin')->group(function()
     Route::post('myaccount/change-password-submit', [MyAccountController::class, 'changePasswordSubmit'])->name('admin.myaccount.change-password-submit');
 
     Route::resource('users', UsersController::class, ['names' => 'admin.users']);
+
+    Route::get('generate-state-list-dropdown', [GeneralController::class, 'generateStateListDropdown'])->name('admin.generate-state-list-dropdown');
 });
 //+++++++++++++++++++++++ ADMIN ROUTE :: End +++++++++++++++++++++++//

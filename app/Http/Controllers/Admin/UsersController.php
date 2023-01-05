@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 
+use Carbon\Carbon;
+
 class UsersController extends Controller
 {
     protected $statusArray = [
@@ -20,13 +22,28 @@ class UsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with(['interests', 'profile_picture', 'followings', 'followers'])
-                    ->where('role', '0')
-                    ->orderby('id','desc')->paginate(15);
-        
-        //echo '<pre>'; print_r($users->toArray()); echo '</pre>';
+        $users_qry = User::with(['profile_picture'])
+                            ->where('role', '0');
+
+        if( $request->filled('uname') ){
+            $users_qry->where('name', 'like', '%' . $request->uname . '%');
+        }
+
+        if( $request->filled('uemail') ){
+            $users_qry->where('email', 'like', '%' . $request->uemail . '%');
+        }
+
+        if( $request->filled('uphone') ){
+            $users_qry->where('phone', 'like', '%' . $request->uphone . '%');
+        }
+
+        if( $request->filled('ustatus') ){
+            $users_qry->where('status', $request->ustatus);
+        }
+
+        $users = $users_qry->orderby('id','desc')->paginate(15);
         
         return view('admin.users.index', compact('users'))->with([ 'statusArray' => $this->statusArray ]);
     }
@@ -69,9 +86,11 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($uuid)
     {
-        //
+        $user = User::where('uuid', $uuid)->first();
+        
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
@@ -81,9 +100,49 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $uuid)
     {
-        //
+        $response = [];
+
+        $response['status'] = '';
+
+        try {
+            if( !$request->filled('user_name') ){
+                return response()->json(['status' => 'failed', 'error' => ['message' => 'User name is missing'], 422]);
+            }
+
+            $country = $request->country ?? null;
+            $state = $request->state ?? null;
+            $city = $request->city ?? null;
+
+            $status = $request->user_status ?? null;
+
+            $user_data = User::where('uuid', $uuid)->first();
+
+            $user_data->name = $request->user_name;
+            $user_data->date_of_birth = ( $request->date_of_birth && !empty($request->date_of_birth) ) ? Carbon::createFromFormat('d/m/Y', $request->date_of_birth)->format('Y-m-d') : NULL;
+            $user_data->gender = $request->gender ?? null;
+            $user_data->about_me = $request->about_user ?? null;
+            $user_data->country_id = $country;
+            $user_data->state_id = $state;
+
+            if( !is_null($country) && !is_null($state) && !is_null($city) ){
+                $user_data->city = $request->city ?? null;
+            }
+
+            if( !is_null($status) ){
+                $user_data->status = $status;
+            }
+
+            $user_data->save();
+
+            $response['status'] = 'success';
+
+            return response()->json($response);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
+        }
     }
 
     /**
@@ -92,8 +151,28 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        //
+        $response = [];
+
+        $response['status'] = '';
+
+        try {
+            if( !isset($uuid) || ($uuid == '') ){
+                return response()->json(['status' => 'failed', 'error' => ['message' => 'No user found!']]);
+            }
+
+            $user = User::where('uuid', $uuid)->first();
+            $user->delete();            
+
+            $response['status'] = 'success';
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['status' => 'failed', 'error' => ['message' => $e->getMessage()], 'e' => $e]);
+        }
+
+        return response()->json($response);
     }
+
+    
 }

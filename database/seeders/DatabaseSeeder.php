@@ -8,6 +8,8 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\CreateUserSeeder;
 use Database\Seeders\InterestSeeder;
 use Database\Seeders\CategoriesSeeder;
+use Database\Seeders\CountriesSeeder;
+use Database\Seeders\StatesTableSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -29,6 +31,8 @@ class DatabaseSeeder extends Seeder
             CreateUserSeeder::class,
             InterestSeeder::class,
             CategoriesSeeder::class,
+            CountriesSeeder::class,
+            StatesTableSeeder::class,
         ]);
     }
 }

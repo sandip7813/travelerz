@@ -14,9 +14,11 @@ use Illuminate\Support\Str;
 use App\Models\Interest;
 use App\Models\Medias;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

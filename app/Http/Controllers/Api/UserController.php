@@ -46,6 +46,11 @@ class UserController extends Controller
 
         $user_data->name = $request->name;
         $user_data->date_of_birth = ( $request->date_of_birth && !empty($request->date_of_birth) ) ? Carbon::createFromFormat('d/m/Y', $request->date_of_birth)->format('Y-m-d') : NULL;
+        $user_data->gender = $request->gender ?? null;
+        $user_data->about_me = $request->about_me ?? null;
+        $user_data->country_id = $request->coutries_id ?? null;
+        $user_data->state_id = $request->state_id ?? null;
+        $user_data->city = $request->city ?? null;
 
         $user_data->save();
 

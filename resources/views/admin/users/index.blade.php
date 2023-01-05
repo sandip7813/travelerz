@@ -86,8 +86,8 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>DoB (d/m/Y)</th>
-                        <th class="no-sort">Status</th>
-                        <th class="no-sort">Action</th>
+                        <th>Status</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -104,8 +104,20 @@
                             </ul>
                           </td>
                           <td>{{ $user->name }}</td>
-                          <td>{{ $user->email }}</td>
-                          <td>{{ $user->phone }}</td>
+                          <td>{{ $user->email }} 
+                            @if( !is_null($user->email_verified_at) )
+                              <a class="ml-3" data-toggle="tooltip" data-placement="top" title="Email verified"><i class="fas fa-check"></i></a>
+                            @else
+                              <a dat class="ml-3" data-toggle="tooltip" data-placement="top" title="Email not verified"><i class="fas fa-times"></i></a>
+                            @endif
+                          </td>
+                          <td>{{ $user->phone }}
+                            @if( !is_null($user->phone_verified_at) )
+                              <a data-t class="ml-3" data-toggle="tooltip" data-placement="top" title="Phone number verified"><i class="fas fa-check"></i></a>
+                            @else
+                              <a data-toggl class="ml-3" data-toggle="tooltip" data-placement="top" title="Phone number not verified"><i class="fas fa-times"></i></a>
+                            @endif
+                          </td>
                           <td>{{ \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y') }}</td>
                           <td>{{ $statusArray[$user->status] }}</td>
                           <td>
@@ -113,7 +125,7 @@
                             &nbsp;&nbsp;&nbsp;
                             <a href="{{ route('admin.users.edit', $user->uuid) }}" data-toggle="tooltip" data-placement="top" title="Edit this User info"><i class="fas fa-edit"></i></a>
                             &nbsp;&nbsp;&nbsp;
-                            <a href="javascript: void(0);" data-toggle="tooltip" data-placement="top" title="Delete this user" class="delete_user" data-route=""><i class="fas fa-trash-alt"></i></a>
+                            <a href="javascript: void(0);" data-toggle="tooltip" data-placement="top" title="Delete this user" class="delete_user" data-route="{{ route('admin.users.destroy', $user->uuid) }}"><i class="fas fa-trash-alt"></i></a>
                           </td>
                         </tr>
                       @endforeach
@@ -176,10 +188,6 @@
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       }
     });
-
-    //+++++++++++++++++++ UPDATE USER STATUS :: Start +++++++++++++++++++//
-    
-    //+++++++++++++++++++ UPDATE USER STATUS :: End +++++++++++++++++++//
 
     //+++++++++++++++++++ DELETE USER :: Start +++++++++++++++++++//
     $('.delete_user').on('click', function(){
