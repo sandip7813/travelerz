@@ -24,6 +24,12 @@ class Interest extends Model
         });
     }
 
+    public static function generateSlug($name){
+        $slug = Str::slug($name);
+        $duplicate = static::withTrashed()->where('slug', 'like', '%' . $slug . '%')->count();
+        return ($duplicate > 0) ? $slug . '-' . ($duplicate + 1) : $slug;
+    }
+
     public function users(){
         return $this->belongsToMany(User::class);
     }

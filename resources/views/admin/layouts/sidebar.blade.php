@@ -56,6 +56,30 @@
               </li>
               {{-- +++++++++++++++++++++++++ CATEGORIES :: End +++++++++++++++++++++++++ --}}
 
+              {{-- +++++++++++++++++++++++++ INTERESTS :: Start +++++++++++++++++++++++++ --}}
+              <li class="nav-item @if (Request::is('admin/interests') || Request::is('admin/interests/*')) menu-open @endif">
+                <a href="javascript: void(0);" class="nav-link @if (Request::is('admin/interests') || Request::is('admin/interests/*')) active @endif">
+                  <i class="nav-icon fas fa-info"></i>
+                  <p>Interests <i class="right fas fa-angle-left"></i></p>
+                </a>
+
+                <ul class="nav nav-treeview">
+                  <li class="nav-item">
+                    <a href="{{ route('admin.interest.index') }}" class="nav-link @if (Request::is('admin/interests')) active @endif">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Manage Interests</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{{ route('admin.interest.create') }}" class="nav-link @if (Request::is('admin/interests/create')) active @endif">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Add Interest</p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              {{-- +++++++++++++++++++++++++ INTERESTS :: End +++++++++++++++++++++++++ --}}
+
               {{-- +++++++++++++++++++++++++ MY ACCOUNT :: Start +++++++++++++++++++++++++ --}}
               <li class="nav-item @if (Request::is('admin/myaccount') || Request::is('admin/myaccount/*')) menu-open @endif">
                 <a href="javascript: void(0);" class="nav-link @if (Request::is('admin/myaccount') || Request::is('admin/myaccount/*')) active @endif">

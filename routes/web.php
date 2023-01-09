@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\InterestController;
 use App\Http\Controllers\Admin\MyAccountController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\GeneralController;
@@ -48,6 +49,9 @@ Route::middleware(['auth','user-role:admin'])->prefix('admin')->group(function()
 
     Route::resource('categories', CategoryController::class, ['names' => 'admin.category']);
     Route::post('categories/change-status', [CategoryController::class, 'changeCategoryStatus'])->name('admin.category.change-status');
+
+    Route::resource('interests', InterestController::class, ['names' => 'admin.interest']);
+    Route::post('interests/change-status', [InterestController::class, 'changeInterestStatus'])->name('admin.interest.change-status');
 
     Route::get('myaccount/change-password', [MyAccountController::class, 'changePassword'])->name('admin.myaccount.change-password');
     Route::post('myaccount/change-password-submit', [MyAccountController::class, 'changePasswordSubmit'])->name('admin.myaccount.change-password-submit');
