@@ -101,4 +101,35 @@ class UserHelper
 
         return $user;
     }
+
+    public static function user_location($uuid){
+        $user = User::with(['user_country', 'user_state'])
+                    ->where('uuid', $uuid)->first();
+        
+        $user_country = $user->user_country->name ?? null;
+        $user_state = $user->user_state->name ?? null;
+        $user_city = $user->city ?? null;
+
+        $location_array = [];
+
+        if( !is_null($user_city) ){
+            $location_array[] = $user_city;
+        }
+
+        if( !is_null($user_state) ){
+            $location_array[] = $user_state;
+        }
+
+        if( !is_null($user_country) ){
+            $location_array[] = $user_country;
+        }
+
+        $location_string = '';
+
+        if( !empty($location_array) ){
+            $location_string = implode(', ', $location_array);
+        }
+
+        return $location_string;
+    }
 }

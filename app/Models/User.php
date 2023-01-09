@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 
 use App\Models\Interest;
 use App\Models\Medias;
+use App\Models\Country;
+use App\Models\State;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -109,14 +111,22 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function followings(){
-        return $this->belongsToMany(User::class, 'follower_user', 'follower_id', 'following_id');
+        return $this->belongsToMany(User::class, 'follower_user', 'follower_id', 'following_id')->with(['profile_picture']);
     }
 
     public function followers(){
-        return $this->belongsToMany(User::class, 'follower_user', 'following_id', 'follower_id');
+        return $this->belongsToMany(User::class, 'follower_user', 'following_id', 'follower_id')->with(['profile_picture']);
     }
 
     public function blocked_users(){
         return $this->belongsToMany(User::class, 'block_user', 'user_id', 'blocked_user_id');
+    }
+
+    public function user_country(){
+        return $this->hasOne(Country::class, 'id', 'country_id');
+    }
+
+    public function user_state(){
+        return $this->hasOne(State::class, 'id', 'state_id');
     }
 }

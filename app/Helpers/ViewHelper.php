@@ -2,6 +2,8 @@
 use App\Models\Country;
 use App\Models\State;
 
+use App\Helpers\UserHelper;
+
 if (! function_exists('country_list')) {
     function country_list($country_abbr = null){
         if( is_null($country_abbr) ){
@@ -26,5 +28,11 @@ if (! function_exists('country_states')) {
         else{
             return null;
         }
+    }
+}
+
+if (! function_exists('user_location')) {
+    function user_location($uuid){
+        return UserHelper::user_location($uuid);
     }
 }
