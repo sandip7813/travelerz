@@ -15,6 +15,7 @@ use App\Models\Interest;
 use App\Models\Medias;
 use App\Models\Country;
 use App\Models\State;
+use App\Models\UserPost;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -99,14 +100,14 @@ class User extends Authenticatable implements JWTSubject
     public function profile_picture(){
         return $this->hasOne(Medias::class, 'user_id', 'id')
                     ->where('file_type', 'image')
-                    ->where('media_type', 'user_profile')
+                    ->where('source_type', 'user_profile')
                     ->where('is_active', 1);
     }
 
     public function banner_picture(){
         return $this->hasOne(Medias::class, 'user_id', 'id')
                     ->where('file_type', 'image')
-                    ->where('media_type', 'user_banner')
+                    ->where('source_type', 'user_banner')
                     ->where('is_active', 1);
     }
 
@@ -128,5 +129,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function user_state(){
         return $this->hasOne(State::class, 'id', 'state_id');
+    }
+
+    public function posts(){
+        return $this->hasMany(UserPost::class, 'user_id', 'id')->with(['pictures'])
+                    ->where('status', '1');
     }
 }

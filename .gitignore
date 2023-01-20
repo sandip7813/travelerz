@@ -2,6 +2,9 @@
 /public/build
 /public/hot
 /public/storage
+/public/images/200x160
+/public/images/1000x600
+/public/images/main
 /storage/*.key
 /vendor
 .env

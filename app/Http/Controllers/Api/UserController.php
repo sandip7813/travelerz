@@ -84,7 +84,10 @@ class UserController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
         }
 
-        $media = Medias::where('uuid', $image_uuid)->first();
+        $media = Medias::where('uuid', $image_uuid)
+                        ->where('user_id', $this->user->id)
+                        ->whereIn('source_type', ['user_profile', 'user_banner'])
+                        ->first();
 
         $image_name = $media->name ?? null;
 

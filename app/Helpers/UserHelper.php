@@ -54,27 +54,33 @@ class UserHelper
             $user = auth('api')->user();
             $user_id = $user->id;
 
-            $media_type = '';
+            $source_type = '';
             $message = '';
 
             if( $image_type == 'profile_picture' ){
-                $media_type = 'user_profile';
+                $source_type = 'user_profile';
                 $message = 'Profile picture uploaded successfully!';
             }
             elseif( $image_type == 'banner_picture' ){
-                $media_type = 'user_banner';
+                $source_type = 'user_banner';
                 $message = 'Banner picture uploaded successfully!';
             }
+            elseif( $image_type == 'post_picture' ){
+                $source_type = 'user_post';
+                $message = 'Post picture uploaded successfully!';
+            }
 
-            Medias::where('user_id', $user_id)
-                    ->where('file_type', 'image')
-                    ->where('media_type', $media_type)
-                    ->update(['is_active' => 0]);
+            if( $image_type != 'post_picture' ){
+                Medias::where('user_id', $user_id)
+                        ->where('file_type', 'image')
+                        ->where('source_type', $source_type)
+                        ->update(['is_active' => 0]);
+            }
             
             $media = Medias::create([
                         'user_id' => $user_id,
                         'file_type' => 'image',
-                        'media_type' => $media_type,
+                        'source_type' => $source_type,
                         'name' => $image_name,
                         'is_active' => 1
                     ]);

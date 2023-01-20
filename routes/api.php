@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\InterestController;
+use App\Http\Controllers\Api\UserPostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,11 +43,16 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/my/upload-banner-picture', [UserController::class, 'uploadBannerPicture']);
     Route::post('/my/delete-picture', [UserController::class, 'deletePicture']);
 
-    Route::post('user/add-interest', [UserController::class, 'addInterest']);
-    Route::post('user/follow', [UserController::class, 'followUser']);
-    Route::post('user/unfollow', [UserController::class, 'unfollowUser']);
-    Route::post('user/block', [UserController::class, 'blockUser']);
-    Route::post('user/unblock', [UserController::class, 'unblockUser']);
+    Route::post('/user/add-interest', [UserController::class, 'addInterest']);
+    Route::post('/user/follow', [UserController::class, 'followUser']);
+    Route::post('/user/unfollow', [UserController::class, 'unfollowUser']);
+    Route::post('/user/block', [UserController::class, 'blockUser']);
+    Route::post('/user/unblock', [UserController::class, 'unblockUser']);
+
+    Route::post('/post/upload-picture', [UserPostController::class, 'uploadPostPicture']);
+    Route::post('/post/delete-picture', [UserPostController::class, 'deletePostPicture']);
+    Route::post('/post/create-update', [UserPostController::class, 'createUpdatePost']);
+    Route::get('/my/post-list', [UserPostController::class, 'getMyPosts']);
 });
 
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);
