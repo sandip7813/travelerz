@@ -54,6 +54,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/post/create-update', [UserPostController::class, 'createUpdatePost']);
     Route::post('/post/like-unlike', [UserPostController::class, 'likeUnlikePost']);
     Route::get('/my/post-list', [UserPostController::class, 'getMyPosts']);
+    Route::post('/post/delete', [UserPostController::class, 'deletePost']);
 });
 
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);

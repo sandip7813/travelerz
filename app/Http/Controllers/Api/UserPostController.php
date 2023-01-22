@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File; 
 
 use App\Helpers\UserHelper;
+use App\Helpers\PostHelper;
 
 class UserPostController extends Controller
 {
@@ -69,47 +70,10 @@ class UserPostController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
         }
 
-        $media = Medias::where('user_id', $this->user->id)
-                        ->where('source_type', 'user_post')
-                        ->where('source_uuid', $post_uuid)
-                        ->where('uuid', $image_uuid)
-                        ->first();
+        $delete_response = PostHelper::deletePostPicture($image_uuid, $post_uuid);
+        $response_status = $delete_response['status'] ?? null;
 
-        $image_name = $media->name ?? null;
-
-        if( is_null($image_name) ){
-            return response()->json(['success' => false, 'message' => 'No record found!'], 400);
-        }
-
-        $media->delete();
-
-        $image_dir = 'images/';
-
-        $dir_main = config('filesystems.image_folder.main') . '/';
-        $dir_1000x600 = config('filesystems.image_folder.1000x600') . '/';
-        $dir_200x160 = config('filesystems.image_folder.200x160') . '/';
-
-        $file_path_main = public_path($image_dir . $dir_main . $image_name);
-        $file_path_1000x600 = public_path($image_dir . $dir_1000x600 . $image_name);
-        $file_path_200x160 = public_path($image_dir . $dir_200x160 . $image_name);
-
-        if( !File::exists($file_path_main) ){
-            return response()->json(['success' => false, 'message' => 'Image not found!'], 400);
-        }
-
-        $files_array = [
-                        $file_path_main, 
-                        $file_path_1000x600, 
-                        $file_path_200x160
-                    ];
-        
-        File::delete($files_array);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Image deleted successfully!',
-            'post_uuid' => $post_uuid
-        ], 200);
+        return response()->json($delete_response, $response_status);
     }
 
     public function createUpdatePost(Request $request){
@@ -166,7 +130,6 @@ class UserPostController extends Controller
 
     public function getMyPosts(){
         $posts = $this->user->posts()->paginate(25);
-        
         return response()->json($posts, 200);
     }
 
@@ -201,5 +164,14 @@ class UserPostController extends Controller
             'message' => 'You have ' . $response_msg . ' the post',
             'post_uuid' => $post_uuid
         ], 200);
+    }
+
+    public function deletePost(Request $request){
+        $post_uuid = $request->post_uuid ?? null;
+
+        $delete_response = PostHelper::deletePost($post_uuid);
+        $response_status = $delete_response['status'] ?? null;
+
+        return response()->json($delete_response, $response_status);
     }
 }
