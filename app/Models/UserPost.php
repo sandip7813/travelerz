@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Medias;
+use App\Models\PostLikes;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -32,5 +33,9 @@ class UserPost extends Model
                     ->where('file_type', 'image')
                     ->where('source_type', 'user_post')
                     ->where('is_active', 1);
+    }
+
+    public function likes(){
+        return $this->hasMany(PostLikes::class, 'post_uuid', 'uuid');
     }
 }

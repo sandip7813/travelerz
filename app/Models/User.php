@@ -132,7 +132,9 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function posts(){
-        return $this->hasMany(UserPost::class, 'user_id', 'id')->with(['pictures'])
+        return $this->hasMany(UserPost::class, 'user_id', 'id')
+                    ->with(['pictures'])
+                    ->withCount(['likes'])
                     ->where('status', '1');
     }
 }

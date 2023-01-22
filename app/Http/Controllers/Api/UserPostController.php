@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Medias;
 use App\Models\UserPost;
+use App\Models\PostLikes;
 
 use Auth;
 use Validator;
@@ -164,9 +165,41 @@ class UserPostController extends Controller
     }
 
     public function getMyPosts(){
-        $posts = $this->user->posts()->paginate(2);
+        $posts = $this->user->posts()->paginate(25);
         
         return response()->json($posts, 200);
     }
 
+    public function likeUnlikePost(Request $request){
+        $post_uuid = $request->post_uuid ?? null;
+
+        if( is_null($post_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $check_post = UserPost::where('uuid', $post_uuid)->exists();
+
+        if( !$check_post ){
+            return response()->json(['success' => false, 'message' => 'No post found!'], 400);
+        }
+
+        $post_like_qry = PostLikes::where('post_uuid', $post_uuid)
+                                ->where('user_uuid', $this->user->uuid);
+        
+        $post_like = $post_like_qry->exists();
+
+        if( $post_like ){
+            $post_like_qry->delete();
+            $response_msg = 'unliked';
+        }
+        else{
+            PostLikes::create(['post_uuid' => $post_uuid]);
+            $response_msg = 'liked';
+        }
+
+        return response()->json([
+            'message' => 'You have ' . $response_msg . ' the post',
+            'post_uuid' => $post_uuid
+        ], 200);
+    }
 }
