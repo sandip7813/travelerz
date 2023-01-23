@@ -108,7 +108,7 @@ class PostHelper
         //++++++++++++ DELETE LIKES :: End ++++++++++++//
 
         //++++++++++++ DELETE POST :: Start ++++++++++++//
-        $check_post_qry->delete();
+        $check_post_qry->forceDelete();
         //++++++++++++ DELETE POST :: End ++++++++++++//
 
         return [
