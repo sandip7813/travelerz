@@ -209,7 +209,7 @@ class CategoryController extends Controller
             }
 
             $category->name = $category_name;
-            $category->slug = Categories::generateSlug($category_name);
+            //$category->slug = Categories::generateSlug($category_name);
             $category->status = $category_status;
 
             $category->save();
