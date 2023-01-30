@@ -47,7 +47,8 @@ Auth::routes(['register' => false]);
 Route::middleware(['auth','user-role:admin'])->prefix('admin')->group(function(){
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
 
-    Route::resource('categories', CategoryController::class, ['names' => 'admin.category']);
+    Route::resource('categories', CategoryController::class, ['names' => 'admin.category'], [ 'except' => ['update'] ]);
+    Route::post('categories/{uuid}/update', [CategoryController::class, 'updateCategory'])->name('admin.category.update');
     Route::post('categories/change-status', [CategoryController::class, 'changeCategoryStatus'])->name('admin.category.change-status');
 
     Route::resource('interests', InterestController::class, ['names' => 'admin.interest']);

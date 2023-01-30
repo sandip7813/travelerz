@@ -39,11 +39,23 @@
                 <div class="card-header">
                     <h3 class="card-title title_wrap">{{ $category->name }}</h3>
                 </div>
-                <form id="edit-category-form" action="{{ route('admin.category.update', $category->uuid) }}">
+                <form id="edit-category-form" action="javascript: void(0);" enctype="multipart/form-data">
                     <div class="card-body">
                         <label>Category Title</label>
                         <div class="input-group mb-3 title_row">
                             <input type="text" name="category_name" class="form-control mr-2" value="{{ $category->name }}" placeholder="Category Title">
+                        </div>
+
+                        <label>Category Icon</label>
+                        <div class="input-group mb-3 title_row table-striped projects">
+                          @if( isset($category->icon_image->name) )
+                            <ul class="list-inline">
+                              <li class="list-inline-item">
+                                <img src="{{ asset('images/icon-files/' . $category->icon_image->name) }}" class="table-avatar mr-2" width="80" height="80" style="width:80px; height:80px;">
+                              </li>
+                            </ul>
+                          @endif
+                          <input type="file" name="category_icon" class="form-control mr-2" placeholder="Category Icon">
                         </div>
 
                         <label>Status</label>
@@ -90,27 +102,28 @@
     });
 
     //++++++++++++++++++++ SUBMIT FORM :: Start ++++++++++++++++++++//
-    $('#edit-category-form').submit(function(e){
+    $('#edit-category-form').on('submit', function(e){
+      e.preventDefault();
+
       update_category_btn = $('#update-category-submit');
 
       category_name = $('input[name="category_name"]').val().trim();
-      category_status = $('input[name="category_status"]:checked').val();
 
-      form_action = $(this).attr('action');
+      form_action = "{{ route('admin.category.update', $category->uuid) }}";
 
-      e.preventDefault();
+      var formData = new FormData(this);
 
       update_category_btn.html('<i class="fa fa-spinner" aria-hidden="true"></i> Updating...').attr('disabled', true);
 
       //
       $.ajax({
         dataType: 'json',
-        type: 'PATCH',
-        data: {
-            'category_name': category_name,
-            'category_status': category_status,
-        },
+        type: 'POST',
+        data: formData,
         url: form_action,
+        cache: false,
+        contentType: false,
+        processData: false,
         success:function(data) {
           update_category_btn.html('Update').attr('disabled', false);
 
@@ -122,6 +135,10 @@
             swal_fire_success('Category info updated successfully!');
 
             $('.title_wrap').html(category_name);
+
+            if( data.icon_name ){
+              $('.table-avatar').attr('src', "{{ asset('images/icon-files/') }}/" + data.icon_name);
+            }
           }
 
           $('.btn').attr('disabled', false);
@@ -133,7 +150,5 @@
     //++++++++++++++++++++ SUBMIT FORM :: End ++++++++++++++++++++//
     
   });
-
-
 </script>
 @endsection

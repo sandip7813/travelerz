@@ -78,6 +78,7 @@ return [
         'main' => 'main',
         '1000x600' => '1000x600',
         '200x160' => '200x160',
+        'icon-files' => 'icon-files',
     ],
 
 ];

@@ -38,12 +38,21 @@
                 <div class="card-header">
                     <h3 class="card-title">Enter Category Title</h3>
                 </div>
-                <form id="add-category-form" action="javascript: void(0);">
-                    <div class="card-body" id="category_title_wrap"></div>
+                <form id="add-category-form" action="javascript: void(0);" enctype="multipart/form-data">
+                    <div class="card-body">
+                        <label>Category Title</label>
+                        <div class="input-group mb-3 title_row">
+                            <input type="text" name="category_name" class="form-control mr-2" placeholder="Category Title">
+                        </div>
+
+                        <label>Category Icon</label>
+                        <div class="input-group mb-3 title_row">
+                          <input type="file" name="category_icon" class="form-control mr-2" placeholder="Category Icon">
+                        </div>
+                    </div>
 
                     <!-- /.card-body -->
                     <div class="card-footer">
-                        <button type="button" class="btn btn-info" data-toggle="tooltip" data-placement="top" title="Add a new row" onclick="add_row_html()"><i class="fas fa-plus-square"></i>&nbsp;&nbsp;Add More</button>
                         <button type="submit" class="btn btn-success float-right" id="add-category-submit">Submit</button>
                     </div>
                 </form>
@@ -69,81 +78,45 @@
 
 <script>
   $(function () {
-    $('#add-category-submit').on('click', function(){
-      this_obj = $(this);
-      var category_title = [];
-      category_title_field = $("input[name='category_title[]']");
-      if( category_title_field.length == 0 ){
-        swal_fire_error('No category title found!');
-        return false;
+    category_form = $('#add-category-form');
+
+    $.ajaxSetup({
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
       }
-      category_title_field.each(function() {
-          var value = $(this).val();
-          if (value) {
-              category_title.push(value);
-          }
-      });
-      if (category_title.length === 0) {
-        swal_fire_error('No category title found!');
-        return false;
-      }
-      this_obj.html('<i class="fa fa-spinner" aria-hidden="true"></i> Processing');
-      $('.btn').attr('disabled', true);
-      //
-      $.ajaxSetup({
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-      });
+    });
+
+    category_form.on('submit', function(e){
+      e.preventDefault();
+
+      submit_btn = $('#add-category-submit');
+
+      var formData = new FormData(this);
+
+      submit_btn.html('<i class="fa fa-spinner" aria-hidden="true"></i> Submitting...').attr('disabled', true);
+
       $.ajax({
         dataType: 'json',
         type: 'POST',
-        data:{
-          category_title: category_title
-        },
+        data: formData ,
         url: "{{ route('admin.category.store') }}",
+        cache: false,
+        contentType: false,
+        processData: false,
         success:function(data) {
+          submit_btn.html('Submit').attr('disabled', false);
+
           if( data.status == 'failed' ){
             swal_fire_error(data.error.message);
             return false;
           }
           else if( data.status == 'success' ){
-            swal_fire_success('Categories created successfully!');
-            $('#category_title_wrap').html('');
-            add_row_html();
+            swal_fire_success('Category created successfully!');
+            category_form[0].reset();
           }
-          $('.btn').attr('disabled', false);
-          this_obj.html('Submit');
         }
       });
-      //
-    });
+    })
   });
-  add_row_html();
-  function add_row_html(){
-    html_string = '<div class="input-group mb-3 title_row">';
-    html_string += '<input type="text" name="category_title[]" class="form-control" placeholder="Category Title">';
-    html_string += '<div class="input-group-append">';
-    html_string += '<span class="input-group-text"><a href="javascript:void(0);" data-toggle="tooltip" data-placement="top" title="Remove this row" onclick="remove_row(this)"><i class="fas fa-trash-alt"></i></a></span>';
-    html_string += '</div>';
-    html_string += '</div>';
-    $('#category_title_wrap').append(html_string);
-  }
-  function remove_row(this_obj){
-    category_title_field = $("input[name='category_title[]']");
-    if( category_title_field.length == 1 ){
-      swal_fire_error('You can\'t delete all category titles!');
-      return false;
-    }
-    Swal.fire({
-      title: 'Do you want to delete this row?',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, Delete',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        $(this_obj).parents('.title_row').remove();
-      }
-    });
-  }
 </script>
 @endsection

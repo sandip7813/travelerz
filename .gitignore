@@ -5,6 +5,7 @@
 /public/images/200x160
 /public/images/1000x600
 /public/images/main
+/public/images/icon-files
 /storage/*.key
 /vendor
 .env

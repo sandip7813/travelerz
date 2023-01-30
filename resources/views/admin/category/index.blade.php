@@ -71,9 +71,10 @@
                 {{-- +++++++++++++++++++ SEARCH RECORDS :: End +++++++++++++++++++ --}}
 
                 @if( $categories->count() > 0 )
-                  <table class="table table-bordered table-hover">
+                  <table class="table table-bordered table-hover table-striped projects">
                     <thead>
                       <tr>
+                        <th>Icon</th>
                         <th>Title</th>
                         <th>Slug</th>
                         <th class="no-sort">Status</th>
@@ -82,7 +83,17 @@
                     </thead>
                     <tbody>
                       @foreach($categories as $cat)
+                        @php
+                          $icon_url = ( isset($cat->icon_image->name) ) ? url('images/' . config('filesystems.image_folder.icon-files') . '/' . $cat->icon_image->name) : url('images/no-image.jpg');
+                        @endphp
                         <tr>
+                        <td>
+                            <ul class="list-inline">
+                              <li class="list-inline-item">
+                                <img src="{{ $icon_url }}" class="table-avatar" width="80" height="80" style="width:80px; height:80px;">
+                              </li>
+                            </ul>
+                          </td>
                           <td>{{ $cat->name }}</td>
                           <td>{{ $cat->slug }}</td>
                           <td>
@@ -98,6 +109,7 @@
                     </tbody>
                     <tfoot>
                       <tr>
+                        <th>Icon</th>
                         <th>Title</th>
                         <th>Slug</th>
                         <th>Status</th>

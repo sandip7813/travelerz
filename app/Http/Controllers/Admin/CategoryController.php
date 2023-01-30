@@ -6,6 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Categories;
+use App\Models\Medias;
+
+use Illuminate\Support\Str;
+use Validator;
+use Image;
+use Illuminate\Support\Facades\File; 
+
+use Auth;
 
 class CategoryController extends Controller
 {
@@ -21,7 +29,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        $categories_qry = Categories::select('*');
+        $categories_qry = Categories::with('icon_image');
 
         if( $request->filled('cat_title') ){
             $categories_qry->where('name', 'like', '%' . $request->cat_title . '%');
@@ -59,38 +67,46 @@ class CategoryController extends Controller
         $response['status'] = '';
 
         try {
-            $category_title = $request->category_title ?? [];
+            $validator_array = [];
 
-            //+++++++++++++++++++++++++ VALIDATION :: Start +++++++++++++++++++++++++//
-            if( empty($category_title) ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'No category title found!']]);
+            $validator_array['category_name'] = 'required|max:255';
+            $validator_array['category_icon'] = 'required|mimes:jpeg,jpg,png,gif|max:10000';
+
+            $validator = Validator::make($request->all(), $validator_array);
+
+            $validator_errors = implode('<br>', $validator->errors()->all());
+
+            if ($validator->fails()) {
+                return response()->json(['status' => 'failed', 'error' => ['message' => $validator_errors]]);
             }
 
-            if( !empty($category_title) ){
-                $cat_val_exists = 0;
+            $category_name = $request->category_name;
 
-                foreach($category_title as $cat){
-                    if( trim($cat) != '' ){
-                        $cat_val_exists++;
-                    }
-                }
-
-                if( $cat_val_exists == 0 ){
-                    return response()->json(['status' => 'failed', 'error' => ['message' => 'No category title found!']]);
-                }
-            }
-            //+++++++++++++++++++++++++ VALIDATION :: End +++++++++++++++++++++++++//
-
-            if( count($category_title) > 0 ){
-                foreach($category_title as $cat){
-                    if( trim($cat) != '' ){
-                        Categories::create([
-                            'name' => $cat,
-                            'slug' => Categories::generateSlug($cat),
+            $category = Categories::create([
+                            'name' => $category_name,
+                            'slug' => Categories::generateSlug($category_name),
                             'type' => 'blog'
                         ]);
-                    }
-                }
+            
+            if($request->hasFile('category_icon')) {
+                $category_icon = $request->file('category_icon');
+                $iconMake = Image::make($category_icon);
+
+                $iconName = time() . '-' . uniqid() . '.' . $category_icon->getClientOriginalExtension();
+
+                $iconDir = 'images/icon-files/';
+
+                $destinationPath = public_path($iconDir);
+                $iconMake->save($destinationPath . $iconName);
+
+                Medias::create([
+                    'user_id' => Auth::user()->id,
+                    'file_type' => 'image',
+                    'source_type' => 'category',
+                    'source_uuid' => $category->uuid,
+                    'name' => $iconName,
+                    'is_active' => 1
+                ]);
             }
 
             $response['status'] = 'success';
@@ -121,7 +137,8 @@ class CategoryController extends Controller
      */
     public function edit($uuid)
     {
-        $category = Categories::where('uuid', $uuid)->first();
+        $category = Categories::with('icon_image')
+                                ->where('uuid', $uuid)->first();
 
         return view('admin.category.edit', compact('category'));
     }
@@ -133,7 +150,7 @@ class CategoryController extends Controller
      * @param  string  $uuid
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $uuid)
+    public function updateCategory(Request $request, $uuid)
     {
         $response = [];
 
@@ -146,24 +163,56 @@ class CategoryController extends Controller
                 return response()->json(['status' => 'failed', 'error' => ['message' => 'No category found!']]);
             }
 
-            $category_name = $request->category_name ? trim($request->category_name) : '';
-            $category_status = $request->category_status ?? null;
+            $validator_array = [];
 
-            if( empty($category_name) ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'No category title found!']]);
+            $validator_array['category_name'] = 'required|max:255';
+            $validator_array['category_icon'] = 'mimes:jpeg,jpg,png,gif|max:10000';
+            $validator_array['category_status'] = 'required';
+
+            $validator = Validator::make($request->all(), $validator_array);
+
+            $validator_errors = implode('<br>', $validator->errors()->all());
+
+            if ($validator->fails()) {
+                return response()->json(['status' => 'failed', 'error' => ['message' => $validator_errors]]);
             }
 
-            if( is_null($category_status) ){
-                return response()->json(['status' => 'failed', 'error' => ['message' => 'Invalid category status']]);
-            }
-
+            $category_name = $request->category_name;
+            $category_status = $request->category_status;
+            
             $category = Categories::where('uuid', $category_uuid)->first();
+
+            if($request->hasFile('category_icon')) {
+                $category_icon = $request->file('category_icon');
+                $iconMake = Image::make($category_icon);
+
+                $iconName = time() . '-' . uniqid() . '.' . $category_icon->getClientOriginalExtension();
+
+                $iconDir = 'images/icon-files/';
+
+                $destinationPath = public_path($iconDir);
+                $iconMake->save($destinationPath . $iconName);
+
+                //Delete image if exists
+                $this->deleteCategoryIcon($category->uuid);
+
+                Medias::create([
+                    'user_id' => Auth::user()->id,
+                    'file_type' => 'image',
+                    'source_type' => 'category',
+                    'source_uuid' => $category->uuid,
+                    'name' => $iconName,
+                    'is_active' => 1
+                ]);
+
+                $response['icon_name'] = $iconName;
+            }
 
             $category->name = $category_name;
             $category->slug = Categories::generateSlug($category_name);
             $category->status = $category_status;
 
-            $category->save();            
+            $category->save();
 
             $response['status'] = 'success';
         } catch (\Exception $e) {
@@ -227,5 +276,25 @@ class CategoryController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    private function deleteCategoryIcon($category_uuid){
+        $media = Medias::where('source_type', 'category')
+                        ->where('source_uuid', $category_uuid)
+                        ->first();
+
+        $icon_name = $media->name ?? null;
+
+        if( isset($media->uuid) ){
+            $media->delete();
+
+            $image_dir = 'images/';
+            $dir_icons = config('filesystems.image_folder.icon-files') . '/';
+            $file_path_icons = public_path($image_dir . $dir_icons . $icon_name);
+
+            if( File::exists($file_path_icons) ){
+                File::delete($file_path_icons);
+            }
+        }
     }
 }
