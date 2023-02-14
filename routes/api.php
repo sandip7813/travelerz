@@ -48,6 +48,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/user/unfollow', [UserController::class, 'unfollowUser']);
     Route::post('/user/block', [UserController::class, 'blockUser']);
     Route::post('/user/unblock', [UserController::class, 'unblockUser']);
+    Route::post('/user/sync', [UserController::class, 'syncUser']);
 
     Route::post('/post/upload-picture', [UserPostController::class, 'uploadPostPicture']);
     Route::post('/post/delete-picture', [UserPostController::class, 'deletePostPicture']);

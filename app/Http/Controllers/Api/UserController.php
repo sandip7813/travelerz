@@ -308,4 +308,14 @@ class UserController extends Controller
             'message' => 'You have unblocked ' . $block_user_name,
         ], 200);
     }
+
+    public function syncUser(Request $request){
+        $sync_list = $request->sync_list ?? [];
+
+        return response()->json([
+            'success' => true,
+            'sync_list' => $sync_list,
+        ], 200);
+    }
+
 }
