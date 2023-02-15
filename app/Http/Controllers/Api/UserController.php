@@ -17,7 +17,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Image;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File; 
+use Illuminate\Support\Facades\File;
+
+use Twilio\Rest\Client;
 
 class UserController extends Controller
 {
@@ -315,6 +317,25 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'sync_list' => $sync_list,
+        ], 200);
+    }
+
+    public function sendSMS($recipient){
+        $recipient = $recipient ?? null;
+
+        $message = 'Hi Twilio test';
+
+        $account_sid = config('services.twilio.sid');
+        $auth_token = config('services.twilio.auth_token');
+        $twilio_number = config('services.twilio.from');
+        $client = new Client($account_sid, $auth_token);
+        $twilio_response = $client->messages->create($recipient, ['from' => $twilio_number, 'body' => $message]);
+
+        //print_r($twilio_response); exit;
+
+        return response()->json([
+            'success' => true,
+            'twilio_response' => $twilio_response,
         ], 200);
     }
 
