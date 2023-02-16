@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\InterestController;
 use App\Http\Controllers\Api\UserPostController;
+use App\Http\Controllers\Api\GeneralController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,3 +70,6 @@ Route::group(['middleware' => 'api'], function(){
 
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);
 Route::get('/interest/all', [InterestController::class, 'getAllActiveInterests']);
+
+Route::get('/countries', [GeneralController::class, 'getCountries']);
+Route::get('/states', [GeneralController::class, 'getStates']);
