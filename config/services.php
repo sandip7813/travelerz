@@ -37,4 +37,16 @@ return [
         'from' => env('TWILIO_FROM_NUMBER'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => config('app.url') . '/login/google/callback',
+    ],
+
+    'facebook' => [
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => config('app.url') . '/login/facebook/callback',
+    ],
+
 ];

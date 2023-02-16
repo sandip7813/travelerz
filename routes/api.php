@@ -34,6 +34,14 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
     Route::get('/reset-password', [AuthController::class, 'resetPassword']);
     Route::post('/reset-password-submit', [AuthController::class, 'resetPasswordSubmit']);
+
+    // Google login
+    Route::get('/login/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
+    Route::get('/login/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+    // Facebook login
+    Route::get('/login/facebook', [AuthController::class, 'redirectToFacebook'])->name('login.facebook');
+    Route::get('/login/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
 });
 
 Route::group(['middleware' => 'api'], function(){
