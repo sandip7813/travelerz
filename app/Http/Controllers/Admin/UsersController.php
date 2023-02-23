@@ -77,7 +77,7 @@ class UsersController extends Controller
      */
     public function show($uuid)
     {
-        $user = User::with(['profile_picture', 'banner_picture', 'followings', 'followers', 'user_country', 'user_state'])
+        $user = User::with(['profile_picture', 'banner_picture', 'followings', 'followers', 'user_country', 'user_state', 'friends'])
                     ->where('uuid', $uuid)->first();
         
         return view('admin.users.show', compact('user'))->with([ 'statusArray' => $this->statusArray ]);

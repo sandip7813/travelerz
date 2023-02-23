@@ -273,6 +273,11 @@ class UserController extends Controller
         $block_user->followings()->detach($user);
         //+++++++++++++ FORCED UNFOLLOW IF USER BLOCKED :: End +++++++++++++//
 
+        //+++++++++++++ FORCED UNFRIEND IF USER BLOCKED :: Start +++++++++++++//
+        $user->friends()->detach($block_user);
+        $block_user->friends()->detach($user);
+        //+++++++++++++ FORCED UNFRIEND IF USER BLOCKED :: End +++++++++++++//
+
         return response()->json([
             'success' => true,
             'message' => 'You have blocked ' . $block_user_name,
@@ -314,9 +319,31 @@ class UserController extends Controller
     public function syncUser(Request $request){
         $sync_list = $request->sync_list ?? [];
 
+        if( empty($sync_list) ){
+            return response()->json(['success' => false, 'message' => 'No number found in your phone contact list!'], 400);
+        }
+
+        $sync_users = User::whereIn('phone', $sync_list)->get();
+        $total_sync_users = $sync_users->count();
+
+        if($total_sync_users == 0){
+            return response()->json(['success' => false, 'message' => 'No user matched with your phone contact list!'], 400);
+        }
+
+        $user = $this->user;
+
+        foreach($sync_users as $sync_user){
+            $user->friends()->detach($sync_user);
+            $user_blocked = $sync_user->blocked_users()->where('user_id', $user->id)->exists();
+            
+            if( !$user_blocked ){
+                $user->friends()->attach($sync_user);
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'sync_list' => $sync_list,
+            'message' => $total_sync_users . ' friends added!',
         ], 200);
     }
 

@@ -13,7 +13,7 @@ class UserHelper
     public static function my_full_info(){
         if (auth('api')->check()) {
             $user = auth('api')->user();
-            $user->load(['interests', 'profile_picture', 'banner_picture', 'followings', 'followers']);
+            $user->load(['interests', 'profile_picture', 'banner_picture', 'followings', 'followers', 'friends']);
 
             return $user;
         }

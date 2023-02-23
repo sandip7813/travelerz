@@ -123,6 +123,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(User::class, 'block_user', 'user_id', 'blocked_user_id');
     }
 
+    public function friends(){
+        return $this->belongsToMany(User::class, 'friend_user', 'user_id', 'friend_id');
+    }
+
     public function user_country(){
         return $this->hasOne(Country::class, 'id', 'country_id');
     }

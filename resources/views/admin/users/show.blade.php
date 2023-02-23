@@ -55,6 +55,9 @@
                   <li class="list-group-item">
                     <b>Following</b> <a class="float-right">{{ $user->followings->count() }}</a>
                   </li>
+                  <li class="list-group-item">
+                    <b>Friends</b> <a class="float-right">{{ $user->friends->count() }}</a>
+                  </li>
                 </ul>
 
               </div>
