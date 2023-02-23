@@ -14,6 +14,7 @@ use Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EmailVerificationOtp;
@@ -24,7 +25,7 @@ use App\Mail\PasswordChangedSuccessful;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'verifyOtp', 'resendOtp', 'forgetPassword', 'resetPassword', 'resetPasswordSubmit']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'verifyOtp', 'resendOtp', 'forgetPassword', 'resetPassword', 'resetPasswordSubmit', 'redirectToGoogle', 'handleGoogleCallback', 'redirectToFacebook', 'handleFacebookCallback', '_registerOrLoginUser']]);
     }
 
     public function register(Request $request){
@@ -100,7 +101,8 @@ class AuthController extends Controller
     // Google login
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        //return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')->stateless()->user();
     }
 
     // Google callback
@@ -118,6 +120,10 @@ class AuthController extends Controller
     public function redirectToFacebook()
     {
         return Socialite::driver('facebook')->redirect();
+
+        /* Socialite::with('facebook')->stateless()->redirect()->getTargetUrl()
+
+        $fb_user = Socialite::with('facebook')->stateless()->user(); */
     }
 
     // Facebook callback
@@ -144,6 +150,8 @@ class AuthController extends Controller
         }
 
         Auth::login($user); */
+
+        print_r($data); exit;
     }
 
     public function logout(){
