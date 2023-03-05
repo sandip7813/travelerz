@@ -25,7 +25,7 @@ use App\Mail\PasswordChangedSuccessful;
 class AuthController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth:api', ['except' => ['login', 'register', 'verifyOtp', 'resendOtp', 'forgetPassword', 'resetPassword', 'resetPasswordSubmit', 'redirectToGoogle', 'handleGoogleCallback', 'redirectToFacebook', 'handleFacebookCallback', '_registerOrLoginUser']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register', 'verifyOtp', 'resendOtp', 'forgetPassword', 'resetPassword', 'resetPasswordSubmit', 'socialLogin']]);
     }
 
     public function register(Request $request){
@@ -88,7 +88,8 @@ class AuthController extends Controller
         }
 
         if( !auth('api')->attempt(['email' => $request->email, 'password' => $request->password, 'status' => 1]) ){
-            return response()->json(['success' => false, 'message' => 'User Not Active'], 400);
+            $inactive_user = User::where('email', $request->email)->first();
+            return response()->json(['success' => false, 'user_uuid' => $inactive_user->uuid ?? null, 'message' => 'User Not Active'], 400);
         }
 
         if( !auth('api')->attempt(['email' => $request->email, 'password' => $request->password, 'role' => 0]) ){
@@ -98,6 +99,7 @@ class AuthController extends Controller
         return $this->createToken($token);
     }
 
+    /* 
     // Google login
     public function redirectToGoogle()
     {
@@ -121,9 +123,9 @@ class AuthController extends Controller
     {
         return Socialite::driver('facebook')->redirect();
 
-        /* Socialite::with('facebook')->stateless()->redirect()->getTargetUrl()
+        // Socialite::with('facebook')->stateless()->redirect()->getTargetUrl()
 
-        $fb_user = Socialite::with('facebook')->stateless()->user(); */
+        // $fb_user = Socialite::with('facebook')->stateless()->user();
     }
 
     // Facebook callback
@@ -135,23 +137,123 @@ class AuthController extends Controller
 
         // Return home after login
         return redirect()->route('home');
-    }
+    } 
 
     protected function _registerOrLoginUser($data)
     {
-        /* $user = User::where('email', '=', $data->email)->first();
-        if (!$user) {
+        // $user = User::where('email', '=', $data->email)->first();
+        // if (!$user) {
+        //     $user = new User();
+        //     $user->name = $data->name;
+        //     $user->email = $data->email;
+        //     $user->provider_id = $data->id;
+        //     $user->avatar = $data->avatar;
+        //     $user->save();
+        // }
+
+        // Auth::login($user);
+
+        print_r($data); exit;
+    }
+    */
+
+    /**
+     * Social Login
+     */
+    public function socialLogin(Request $request){
+        /* $provider = 'facebook'; // or $request->input('provider_name') for multiple providers
+        $token = $request->input('access_token');
+        $providerUser = Socialite::driver($provider)->userFromToken($token);
+        $user = User::where('provider_name', $provider)->where('provider_id', $providerUser->id)->first();
+        if($user == null){
+            $user = User::create([
+                'provider_name' => $provider,
+                'provider_id' => $providerUser->id,
+            ]);
+        }
+        $token = $user->createToken(env('APP_NAME'))->accessToken;
+        return response()->json([
+            'success' => true,
+            'token' => $token
+        ]); */
+
+        $provider_name = $request->input('provider_name', 'facebook');
+        $access_token = $request->access_token ?? null;
+
+        if( is_null($access_token) ){
+            return response()->json(['success' => false, 'message' => 'No access token received!'], 400);
+        }
+
+        $provider = '';
+        if( strpos($provider_name, 'facebook') !== false ) {
+            $provider = 'facebook';
+        }
+        elseif( strpos($provider_name, 'google') !== false ) {
+            $provider = 'google';
+        }
+
+        $providerUser = Socialite::driver($provider)->stateless()->userFromToken($access_token);
+
+        // \Log::Info( print_r($providerUser, true) );
+
+        $user_exists = User::where('email', '=', $providerUser->email)
+                    ->where('provider_name', '!=', $provider)
+                    ->exists();
+
+        if($user_exists){
+            return response()->json(['success' => false, 'message' => 'This email id is already in use!'], 400);
+        }
+
+        $user = User::where('provider_name', $provider)
+                    ->where('provider_id', $providerUser->id)
+                    ->first();
+
+        $random_password = OtpVerification::generate_otp();
+        
+        if (!isset($user->id)) {
             $user = new User();
-            $user->name = $data->name;
-            $user->email = $data->email;
-            $user->provider_id = $data->id;
-            $user->avatar = $data->avatar;
+            $user->name = $providerUser->name;
+            $user->email = $providerUser->email;
+            $user->password = bcrypt($random_password);
+            $user->provider_name = $provider;
+            $user->provider_id = $providerUser->id;
+            $user->status = '1';
             $user->save();
         }
 
-        Auth::login($user); */
+        /* $userCred = ['email' => $providerUser->email, 'password' => $random_password];
+        $token = auth('api')->attempt($userCred);
+        \Log::Info('Token: ' . $token); */
+        /* $createToken = $this->createToken($token);
+        \Log::Info( print_r($createToken, true) ); */
 
-        print_r($data); exit;
+        //Auth::login($user);
+        auth('api')->login($user);
+
+        //$loggedInUser = auth('api')->attempt(['email' => $providerUser->email, 'password' => $random_password]);
+        /* $loggedInUser = auth('api')->user();
+        \Log::Info( print_r($loggedInUser, true) );
+
+        //$createToken = $user->createToken(env('APP_NAME'))->accessToken;
+        $userCred = ['email' => $providerUser->email, 'password' => $random_password];
+        $token = auth('api')->attempt($userCred);
+        \Log::Info('Token: ' . $token);
+        $createToken = $this->createToken($token);
+        \Log::Info( print_r($createToken, true) );
+        
+        return response()->json([
+            'access_token' => $access_token,
+            'token_type' => 'bearer',
+            //'expires_in' => auth('api')->factory()->getTTL()*60,
+            'user' => $user
+        ]); */
+        //return $createToken;
+
+        //$token = $user->createToken(env('APP_NAME'))->accessToken;
+
+        $refreshToken = $this->refreshToken();
+        \Log::Info( print_r($refreshToken, true) );
+        return $refreshToken;
     }
 
     public function logout(){
