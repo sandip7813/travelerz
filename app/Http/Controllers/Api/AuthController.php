@@ -228,7 +228,7 @@ class AuthController extends Controller
         \Log::Info( print_r($createToken, true) ); */
 
         //Auth::login($user);
-        auth('api')->login($user);
+        //auth('api')->login($user);
 
         //$loggedInUser = auth('api')->attempt(['email' => $providerUser->email, 'password' => $random_password]);
         /* $loggedInUser = auth('api')->user();
@@ -251,9 +251,18 @@ class AuthController extends Controller
 
         //$token = $user->createToken(env('APP_NAME'))->accessToken;
 
-        $refreshToken = $this->refreshToken();
+        /* $refreshToken = $this->refreshToken();
         \Log::Info( print_r($refreshToken, true) );
-        return $refreshToken;
+        return $refreshToken; */
+
+        auth('api')->login($user);
+
+        return response()->json([
+            'access_token' => $access_token,
+            'token_type' => 'bearer',
+            //'expires_in' => auth('api')->factory()->getTTL()*60,
+            'user' => auth('api')->user()
+        ]);
     }
 
     public function logout(){
