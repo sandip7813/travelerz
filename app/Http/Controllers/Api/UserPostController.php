@@ -42,15 +42,12 @@ class UserPostController extends Controller
         //++++++++++++++++ CREATE POST :: End ++++++++++++++++//
 
         $allowedfileExtension = ['jpeg', 'jpg', 'png', 'gif'];
-        //$files_array = $request->file($field_name);
         $mediaFiles = $request->file($field_name);
-        
         $upload_picture_array = [];
 
-        foreach ($files_array as $mediaFiles) {
+        /* foreach ($files_array as $mediaFiles) {
             $extension = $mediaFiles->getClientOriginalExtension();
             $check = in_array($extension, $allowedfileExtension);
-            
             if( $check ) {
                 $upload_picture = UserHelper::uploadUserImages($field_name, $mediaFiles);
                 $file_uuid = $upload_picture['file_uuid'] ?? null;
@@ -64,6 +61,23 @@ class UserPostController extends Controller
             else {
                 return response()->json(['success' => false, 'message' => 'Invaid file extensions! Allowed extensions are ' . implode(', ', $allowedfileExtension)], 400);
             }
+        } */
+
+        $extension = $mediaFiles->getClientOriginalExtension();
+        $check = in_array($extension, $allowedfileExtension);
+        
+        if( $check ) {
+            $upload_picture = UserHelper::uploadUserImages($field_name, $mediaFiles);
+            $file_uuid = $upload_picture['file_uuid'] ?? null;
+
+            if( !is_null($file_uuid) && !is_null($post_uuid) ){
+                Medias::where('uuid', $file_uuid)->update(['source_uuid' => $post_uuid]);
+            }
+
+            $upload_picture_array[] = $upload_picture;
+        }
+        else {
+            return response()->json(['success' => false, 'message' => 'Invaid file extensions! Allowed extensions are ' . implode(', ', $allowedfileExtension)], 400);
         }
 
         $response_array = $upload_picture_array;
