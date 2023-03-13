@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\InterestController;
 use App\Http\Controllers\Api\UserPostController;
+use App\Http\Controllers\Api\MoveController;
 use App\Http\Controllers\Api\GeneralController;
 
 /*
@@ -68,6 +69,9 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/post/like-unlike', [UserPostController::class, 'likeUnlikePost']);
     Route::get('/my/post-list', [UserPostController::class, 'getMyPosts']);
     Route::post('/post/delete', [UserPostController::class, 'deletePost']);
+
+    Route::post('/move/create', [MoveController::class, 'createMove']);
+    Route::post('/move/update', [MoveController::class, 'updateMove']);
 });
 
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);

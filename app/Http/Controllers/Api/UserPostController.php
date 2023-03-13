@@ -26,20 +26,12 @@ class UserPostController extends Controller
     }
 
     public function uploadPostPicture(Request $request){
-        /* $validator = Validator::make($request->all(), [
-            'post_picture' => 'required|mimes:jpeg,jpg,png,gif|max:10000',
-        ]);
-
-        if( $validator->fails() ){
-            return response()->json($validator->errors()->toJson(), 422);
-        } */
-
         $field_name = 'post_picture';
 
         if(!$request->hasFile($field_name)) {
             return response()->json(['success' => false, 'message' => 'No file uploaded!'], 400);
         }
-
+        
         //++++++++++++++++ CREATE POST :: Start ++++++++++++++++//
         $post_uuid = $request->post_uuid ?? null;
 
@@ -50,14 +42,15 @@ class UserPostController extends Controller
         //++++++++++++++++ CREATE POST :: End ++++++++++++++++//
 
         $allowedfileExtension = ['jpeg', 'jpg', 'png', 'gif'];
-        $files_array = $request->file($field_name);
-
+        //$files_array = $request->file($field_name);
+        $mediaFiles = $request->file($field_name);
+        
         $upload_picture_array = [];
 
         foreach ($files_array as $mediaFiles) {
             $extension = $mediaFiles->getClientOriginalExtension();
             $check = in_array($extension, $allowedfileExtension);
-
+            
             if( $check ) {
                 $upload_picture = UserHelper::uploadUserImages($field_name, $mediaFiles);
                 $file_uuid = $upload_picture['file_uuid'] ?? null;
@@ -72,17 +65,6 @@ class UserPostController extends Controller
                 return response()->json(['success' => false, 'message' => 'Invaid file extensions! Allowed extensions are ' . implode(', ', $allowedfileExtension)], 400);
             }
         }
-
-        //++++++++++++++++ UPLOAD PICTURE :: Start ++++++++++++++++//
-        /* $image_file = $request->file($field_name);
-
-        $upload_picture = UserHelper::uploadUserImages($field_name, $image_file);
-        $file_uuid = $upload_picture['file_uuid'] ?? null;
-
-        if( !is_null($file_uuid) && !is_null($post_uuid) ){
-            Medias::where('uuid', $file_uuid)->update(['source_uuid' => $post_uuid]);
-        } */
-        //++++++++++++++++ UPLOAD PICTURE :: End ++++++++++++++++//
 
         $response_array = $upload_picture_array;
         $response_array['post_uuid'] = $post_uuid;
