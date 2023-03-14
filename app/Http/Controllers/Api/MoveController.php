@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Medias;
 use App\Models\Move;
+use App\Models\User;
 
 use Auth;
 use Validator;
@@ -47,6 +48,12 @@ class MoveController extends Controller
         ]);
 
         $move_uuid = $move->uuid ?? null;
+        $invited_members = $request->invited_members ?? [];
+
+        if( !is_null($move_uuid) && !empty($invited_members) ){
+            $invited_users = User::whereIn('id', $invited_members)->get();
+            $move->invitees()->attach($invited_users);
+        }
 
         $response_msg = 'Move has been added successfully!';
 

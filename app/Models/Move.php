@@ -40,4 +40,8 @@ class Move extends Model
                     ->where('source_type', 'move_banner')
                     ->where('is_active', 1);
     }
+
+    public function invitees(){
+        return $this->belongsToMany(User::class);
+    }
 }
