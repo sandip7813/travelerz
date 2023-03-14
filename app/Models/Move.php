@@ -42,6 +42,6 @@ class Move extends Model
     }
 
     public function invitees(){
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'invitee_move', 'move_id', 'invitee_id');
     }
 }

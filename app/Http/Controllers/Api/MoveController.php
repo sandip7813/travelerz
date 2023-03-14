@@ -27,9 +27,9 @@ class MoveController extends Controller
             'title' => 'required',
             'move_on'=> 'required|date_format:Y-m-d H:i:s',
             'category' => 'required',
-            'location' => 'required',
+            /* 'location' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required',
+            'longitude' => 'required', */
             'privacy' => 'required',
         ]);
 
