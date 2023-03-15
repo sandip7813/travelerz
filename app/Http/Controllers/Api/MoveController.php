@@ -9,6 +9,9 @@ use App\Models\Medias;
 use App\Models\Move;
 use App\Models\User;
 
+use App\Helpers\UserHelper;
+use App\Helpers\MoveHelper;
+
 use Auth;
 use Validator;
 use Image;
@@ -55,11 +58,69 @@ class MoveController extends Controller
             $move->invitees()->attach($invited_users);
         }
 
-        $response_msg = 'Move has been added successfully!';
+        $field_name = 'move_banner';
+        $banner_uploaded = false;
 
-        return response()->json([
-            'message' => $response_msg,
-            'move_uuid' => $move_uuid
-        ], 200);
+        if( $request->hasFile($field_name) ) {
+            $allowedfileExtension = ['jpeg', 'jpg', 'png', 'gif'];
+            $mediaFile = $request->file($field_name);
+
+            $extension = $mediaFile->getClientOriginalExtension();
+            $checkExtension = in_array($extension, $allowedfileExtension);
+
+            if( $checkExtension ) {
+                $upload_picture = UserHelper::uploadUserImages($field_name, $mediaFile);
+                $file_uuid = $upload_picture['file_uuid'] ?? null;
+    
+                if( !is_null($file_uuid) && !is_null($move_uuid) ){
+                    Medias::where('uuid', $file_uuid)->update(['source_uuid' => $move_uuid]);
+                }
+
+                $banner_uploaded = true;
+            }
+            else {
+                return response()->json(['success' => false, 'message' => 'Invaid file extensions! Allowed extensions are ' . implode(', ', $allowedfileExtension)], 400);
+            }
+        }
+
+        $response_array = [];
+        $response_array['message'] = 'Move has been created successfully!';
+        $response_array['move_uuid'] = $move_uuid;
+
+        if( $banner_uploaded ){
+            $response_array['banner'] = $upload_picture;
+        }
+
+        return response()->json($response_array, 200);
+    }
+
+    public function showMove($uuid){
+        return Move::with(['banner', 'category', 'created_by', 'invitees'])
+                    ->where('uuid', $uuid)
+                    ->where('status', '1')
+                    ->first();
+    }
+
+    public function deleteBanner(Request $request){
+        $image_uuid = $request->image_uuid ?? null;
+        $move_uuid = $request->move_uuid ?? null;
+
+        if( is_null($image_uuid) || is_null($move_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $delete_response = MoveHelper::deleteBanner($image_uuid, $move_uuid);
+        $response_status = $delete_response['status'] ?? null;
+
+        return response()->json($delete_response, $response_status);
+    }
+
+    public function deleteMove(Request $request){
+        $move_uuid = $request->move_uuid ?? null;
+
+        $delete_response = MoveHelper::deleteMove($move_uuid);
+        $response_status = $delete_response['status'] ?? null;
+
+        return response()->json($delete_response, $response_status);
     }
 }

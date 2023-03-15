@@ -71,7 +71,9 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/post/delete', [UserPostController::class, 'deletePost']);
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
-    Route::post('/move/update', [MoveController::class, 'updateMove']);
+    Route::get('/move/{uuid}/show', [MoveController::class, 'showMove']);
+    Route::post('/move/delete-banner', [MoveController::class, 'deleteBanner']);
+    Route::post('/move/delete', [MoveController::class, 'deleteMove']);
 });
 
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);

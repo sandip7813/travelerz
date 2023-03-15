@@ -69,8 +69,12 @@ class UserHelper
                 $source_type = 'user_post';
                 $message = 'Post picture uploaded successfully!';
             }
+            elseif( $image_type == 'move_banner' ){
+                $source_type = 'move_banner';
+                $message = 'Move Banner uploaded successfully!';
+            }
 
-            if( $image_type != 'post_picture' ){
+            if( !in_array($image_type, ['post_picture', 'move_banner']) ){
                 Medias::where('user_id', $user_id)
                         ->where('file_type', 'image')
                         ->where('source_type', $source_type)
