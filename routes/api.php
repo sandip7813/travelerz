@@ -36,15 +36,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::post('/forget-password', [AuthController::class, 'forgetPassword']);
     Route::get('/reset-password', [AuthController::class, 'resetPassword']);
     Route::post('/reset-password-submit', [AuthController::class, 'resetPasswordSubmit']);
-
-    /* // Google login
-    Route::get('/login/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
-    Route::get('/login/google/callback', [AuthController::class, 'handleGoogleCallback']);
-
-    // Facebook login
-    Route::get('/login/facebook', [AuthController::class, 'redirectToFacebook'])->name('login.facebook');
-    Route::get('/login/facebook/callback', [AuthController::class, 'handleFacebookCallback']); */
-
     Route::post('/social/login', [AuthController::class, 'socialLogin']);
 });
 
@@ -72,7 +63,9 @@ Route::group(['middleware' => 'api'], function(){
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::get('/move/{uuid}/show', [MoveController::class, 'showMove']);
+    Route::get('/my/move-list', [MoveController::class, 'getMyMoves']);
     Route::post('/move/delete-banner', [MoveController::class, 'deleteBanner']);
+    Route::post('/move/delete-invited', [MoveController::class, 'deleteInvited']);
     Route::post('/move/delete', [MoveController::class, 'deleteMove']);
 });
 

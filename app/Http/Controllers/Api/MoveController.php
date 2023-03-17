@@ -101,6 +101,30 @@ class MoveController extends Controller
                     ->first();
     }
 
+    public function getMyMoves(){
+        $moves = $this->user->moves()->paginate(25);
+        return response()->json($moves, 200);
+    }
+
+    public function deleteInvited(Request $request){
+        $move_uuid = $request->move_uuid ?? null;
+        $invited_members = $request->invited_members ?? null;
+
+        if( is_null($invited_members) || is_null($move_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $users = User::whereIn('id', $invited_members)->get();
+        $move = Move::where('uuid', $move_uuid)->where('user_id', $this->user->id)->first();
+        $move->invitees()->detach($users);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Invited members are deleted!',
+            'move_uuid' => $move_uuid
+        ], 200);
+    }
+
     public function deleteBanner(Request $request){
         $image_uuid = $request->image_uuid ?? null;
         $move_uuid = $request->move_uuid ?? null;

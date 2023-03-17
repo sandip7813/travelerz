@@ -141,4 +141,10 @@ class User extends Authenticatable implements JWTSubject
                     ->withCount(['likes'])
                     ->where('status', '1');
     }
+
+    public function moves(){
+        return $this->hasMany(Move::class, 'user_id', 'id')
+                    ->with(['banner', 'category', 'invitees'])
+                    ->where('status', '1');
+    }
 }
