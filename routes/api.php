@@ -60,6 +60,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/post/like-unlike', [UserPostController::class, 'likeUnlikePost']);
     Route::get('/my/post-list', [UserPostController::class, 'getMyPosts']);
     Route::post('/post/delete', [UserPostController::class, 'deletePost']);
+    Route::get('/post/all', [UserPostController::class, 'showAllPosts']);
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::get('/move/{uuid}/show', [MoveController::class, 'showMove']);

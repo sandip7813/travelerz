@@ -38,4 +38,8 @@ class UserPost extends Model
     public function likes(){
         return $this->hasMany(PostLikes::class, 'post_uuid', 'uuid');
     }
+
+    public function created_by(){
+        return $this->hasOne(User::class, 'id', 'user_id')->with(['profile_picture']);
+    }
 }

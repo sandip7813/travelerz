@@ -198,4 +198,11 @@ class UserPostController extends Controller
 
         return response()->json($delete_response, $response_status);
     }
+
+    public function showAllPosts(){
+        return UserPost::with(['pictures', 'created_by'])
+                        ->withCount(['likes'])
+                        ->where('status', '1')
+                        ->paginate(25);
+    }
 }
