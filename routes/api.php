@@ -63,6 +63,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/post/all', [UserPostController::class, 'showAllPosts']);
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
+    Route::post('/move/edit', [MoveController::class, 'editMove']);
     Route::get('/move/{uuid}/show', [MoveController::class, 'showMove']);
     Route::get('/my/move-list', [MoveController::class, 'getMyMoves']);
     Route::post('/move/delete-banner', [MoveController::class, 'deleteBanner']);
