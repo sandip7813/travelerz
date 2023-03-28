@@ -253,6 +253,31 @@ class UserPostController extends Controller
         ], 200);
     }
 
+    public function deleteComment(Request $request){
+        $comment_uuid = $request->comment_uuid ?? null;
+
+        if( is_null($comment_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $comment = Comments::where('uuid', $comment_uuid)
+                            ->where('user_uuid', $this->user->uuid)
+                            ->first();
+        
+        if( !isset($comment->id) ){
+            return response()->json(['success' => false, 'message' => 'No comment found!'], 400);
+        }
+
+        $comment->delete();
+
+        Comments::where('parent_uuid', $comment_uuid)
+                ->delete();
+        
+        return response()->json([
+            'message' => 'Comment deleted successfully!'
+        ], 200);
+    }
+
     public function showAllPosts(){
         return UserPost::with(['pictures', 'created_by'])
                         ->withCount(['likes'])
