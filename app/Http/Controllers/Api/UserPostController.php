@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Medias;
 use App\Models\UserPost;
 use App\Models\PostLikes;
+use App\Models\Comments;
 
 use Auth;
 use Validator;
@@ -197,6 +198,59 @@ class UserPostController extends Controller
         $response_status = $delete_response['status'] ?? null;
 
         return response()->json($delete_response, $response_status);
+    }
+
+    public function addComment(Request $request){
+        $post_uuid = $request->post_uuid ?? null;
+
+        if( is_null($post_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $check_post = UserPost::where('uuid', $post_uuid)->exists();
+
+        if( !$check_post ){
+            return response()->json(['success' => false, 'message' => 'No post found!'], 400);
+        }
+
+        $content = $request->content ?? null;
+
+        if( empty($content) ){
+            return response()->json(['success' => false, 'message' => 'Type something to post!'], 400);
+        }
+
+        //+++++++++++++++++++++++ REPLY :: Start +++++++++++++++++++++++//
+        $parent_uuid = $request->parent_uuid ?? null;
+
+        if( !is_null($parent_uuid) ){
+            $parent_comment = Comments::where('uuid', $parent_uuid)
+                                        ->where('is_active', 1)
+                                        ->exists();
+            
+            if( !$parent_comment ){
+                return response()->json(['success' => false, 'message' => 'No comment found to reply!'], 400);
+            }
+        }
+        //+++++++++++++++++++++++ REPLY :: End +++++++++++++++++++++++//
+
+        $comment = Comments::create([
+           'post_uuid' => $post_uuid,
+           'parent_uuid' => $parent_uuid,
+           'content' => $content
+        ]);
+
+        if( !is_null($parent_uuid) ){
+            $response_message = 'You have replied to the comment uuid ' . $parent_uuid;
+        }
+        else{
+            $response_message = 'Comment has been added successfully!';
+        }
+
+        return response()->json([
+            'message' => $response_message,
+            'post_uuid' => $post_uuid,
+            'comment_uuid' => $comment->uuid
+        ], 200);
     }
 
     public function showAllPosts(){

@@ -13,7 +13,7 @@ class Comments extends Model
 {
     use HasFactory, SoftDeletes, HasRecursiveRelationships;
 
-    protected $table = 'post_likes';
+    protected $table = 'comments';
 
     protected $fillable = ['post_uuid', 'parent_uuid', 'content'];
 
@@ -23,6 +23,7 @@ class Comments extends Model
         self::creating(function ($model) {
             $model->uuid = (string) Str::uuid();
             $model->user_uuid = auth('api')->user()->uuid;
+            $model->is_active = 1;
         });
     }
 }

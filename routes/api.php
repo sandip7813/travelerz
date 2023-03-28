@@ -61,6 +61,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/my/post-list', [UserPostController::class, 'getMyPosts']);
     Route::post('/post/delete', [UserPostController::class, 'deletePost']);
     Route::get('/post/all', [UserPostController::class, 'showAllPosts']);
+    Route::post('/post/add-comment', [UserPostController::class, 'addComment']);
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::post('/move/edit', [MoveController::class, 'editMove']);
