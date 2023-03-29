@@ -15,7 +15,7 @@ class Comments extends Model
 
     protected $table = 'comments';
 
-    protected $fillable = ['post_uuid', 'parent_uuid', 'content'];
+    protected $fillable = ['post_uuid', 'parent_id', 'parent_uuid', 'content'];
 
     public static function boot(){
         parent::boot();
@@ -25,5 +25,9 @@ class Comments extends Model
             $model->user_uuid = auth('api')->user()->uuid;
             $model->is_active = 1;
         });
+    }
+
+    public function parent(){
+        return $this->belongsTo(\App\Models\Comments::class, 'parent_id');
     }
 }

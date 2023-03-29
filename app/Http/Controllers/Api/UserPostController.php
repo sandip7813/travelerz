@@ -221,13 +221,16 @@ class UserPostController extends Controller
 
         //+++++++++++++++++++++++ REPLY :: Start +++++++++++++++++++++++//
         $parent_uuid = $request->parent_uuid ?? null;
+        $parent_id = null;
 
         if( !is_null($parent_uuid) ){
             $parent_comment = Comments::where('uuid', $parent_uuid)
                                         ->where('is_active', 1)
-                                        ->exists();
+                                        ->first();
             
-            if( !$parent_comment ){
+            $parent_id = isset($parent_comment->id) ? $parent_comment->id : null;
+
+            if( is_null($parent_id) ){
                 return response()->json(['success' => false, 'message' => 'No comment found to reply!'], 400);
             }
         }
@@ -235,6 +238,7 @@ class UserPostController extends Controller
 
         $comment = Comments::create([
            'post_uuid' => $post_uuid,
+           'parent_id' => $parent_id,
            'parent_uuid' => $parent_uuid,
            'content' => $content
         ]);
@@ -283,5 +287,24 @@ class UserPostController extends Controller
                         ->withCount(['likes'])
                         ->where('status', '1')
                         ->paginate(25);
+    }
+
+    public function showComments($post_uuid){
+        if( !isset($post_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $check_post = UserPost::where('uuid', $post_uuid)->exists();
+
+        if( !$check_post ){
+            return response()->json(['success' => false, 'message' => 'No post found!'], 400);
+        }
+        
+        $comments = Comments::with('descendants')
+                                ->where('post_uuid', $post_uuid)
+                                ->whereNull('parent_uuid')
+                                ->get()->toArray();
+        
+        return response()->json($comments, 200);
     }
 }

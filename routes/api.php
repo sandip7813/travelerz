@@ -63,6 +63,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/post/all', [UserPostController::class, 'showAllPosts']);
     Route::post('/post/add-comment', [UserPostController::class, 'addComment']);
     Route::post('/post/delete-comment', [UserPostController::class, 'deleteComment']);
+    Route::get('/post/{post_uuid}/show-comments', [UserPostController::class, 'showComments']);
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::post('/move/edit', [MoveController::class, 'editMove']);
