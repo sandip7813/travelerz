@@ -102,13 +102,13 @@ class UserPostController extends Controller
     }
 
     public function createUpdatePost(Request $request){
-        $validator = Validator::make($request->all(), [
+        /* $validator = Validator::make($request->all(), [
             'content' => 'required',
         ]);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->toJson(), 422);
-        }
+        } */
 
         $post_uuid = $request->post_uuid ?? null;
 
@@ -283,8 +283,8 @@ class UserPostController extends Controller
     }
 
     public function showAllPosts(){
-        return UserPost::with(['pictures', 'created_by'])
-                        ->withCount(['likes'])
+        return UserPost::with(['pictures', 'shared', 'created_by'])
+                        ->withCount(['likes', 'Comments'])
                         ->where('status', '1')
                         ->paginate(25);
     }
@@ -306,5 +306,43 @@ class UserPostController extends Controller
                                 ->get()->toArray();
         
         return response()->json($comments, 200);
+    }
+
+    public function sharePost(Request $request){
+        $validator = Validator::make($request->all(), [
+            'parent_uuid' => 'required',
+        ]);
+
+        if( $validator->fails() ){
+            return response()->json($validator->errors()->toJson(), 422);
+        }
+
+        $parent_uuid = $request->parent_uuid ?? null;
+
+        $check_post = UserPost::where('uuid', $parent_uuid)->exists();
+
+        if( !$check_post ){
+            return response()->json(['success' => false, 'message' => 'No post found to share!'], 400);
+        }
+
+        $post_array = [
+            'content' => $request->content,
+            'location' => $request->location ?? null,
+            'latitude' => $request->latitude ? (float) $request->latitude : null,
+            'longitude' => $request->longitude ? (float) $request->longitude : null,
+            'parent_uuid' => $parent_uuid,
+            'status' => '1'
+        ];
+
+        $post = UserPost::create($post_array);
+
+        $post_uuid = $post->uuid ?? null;
+
+        $response_msg = 'Post has been shared successfully!';
+
+        return response()->json([
+            'message' => $response_msg,
+            'post_uuid' => $post_uuid
+        ], 200);
     }
 }

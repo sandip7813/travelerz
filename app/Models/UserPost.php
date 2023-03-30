@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Medias;
 use App\Models\PostLikes;
+use App\Models\Comments;
+use App\Models\UserPost;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -17,7 +19,7 @@ class UserPost extends Model
 
     protected $table = 'user_posts';
 
-    protected $fillable = ['user_id', 'content', 'location', 'latitude', 'longitude', 'status'];
+    protected $fillable = ['user_id', 'content', 'location', 'latitude', 'longitude', 'parent_uuid', 'status'];
 
     public static function boot(){
         parent::boot();
@@ -39,7 +41,15 @@ class UserPost extends Model
         return $this->hasMany(PostLikes::class, 'post_uuid', 'uuid');
     }
 
+    public function comments(){
+        return $this->hasMany(Comments::class, 'post_uuid', 'uuid');
+    }
+
     public function created_by(){
         return $this->hasOne(User::class, 'id', 'user_id')->with(['profile_picture']);
+    }
+
+    public function shared(){
+        return $this->hasOne(UserPost::class, 'uuid', 'parent_uuid')->with(['pictures', 'created_by']);
     }
 }

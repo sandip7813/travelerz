@@ -118,4 +118,8 @@ class PostHelper
             'status' => 200
         ];
     }
+
+    public static function shared_count($post_uuid){
+        return UserPost::where('parent_uuid', $post_uuid)->count();
+    }
 }
