@@ -65,10 +65,11 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/post/delete-comment', [UserPostController::class, 'deleteComment']);
     Route::get('/post/{post_uuid}/show-comments', [UserPostController::class, 'showComments']);
     Route::post('/post/share', [UserPostController::class, 'sharePost']);
+    Route::get('/post/{uuid}/details', [UserPostController::class, 'postDetails']);
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::post('/move/edit', [MoveController::class, 'editMove']);
-    Route::get('/move/{uuid}/show', [MoveController::class, 'showMove']);
+    Route::get('/move/{uuid}/details', [MoveController::class, 'moveDetails']);
     Route::get('/my/move-list', [MoveController::class, 'getMyMoves']);
     Route::post('/move/delete-banner', [MoveController::class, 'deleteBanner']);
     Route::post('/move/delete-invited', [MoveController::class, 'deleteInvited']);

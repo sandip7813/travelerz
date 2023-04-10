@@ -186,7 +186,7 @@ class MoveController extends Controller
         return response()->json($response_array, 200);
     }
 
-    public function showMove($uuid){
+    public function moveDetails($uuid){
         return Move::with(['banner', 'category', 'created_by', 'invitees'])
                     ->where('uuid', $uuid)
                     ->where('status', '1')

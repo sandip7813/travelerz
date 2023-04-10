@@ -345,4 +345,22 @@ class UserPostController extends Controller
             'post_uuid' => $post_uuid
         ], 200);
     }
+
+    public function postDetails($post_uuid){
+        if( !isset($post_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $post_details = UserPost::with(['pictures', 'shared', 'created_by'])
+                                ->withCount(['likes', 'Comments'])
+                                ->where('uuid', $post_uuid)
+                                ->where('status', '1')
+                                ->first();
+        
+        if( !isset($post_details->id) ){
+            return response()->json(['success' => false, 'message' => 'No post found to share!'], 400);
+        }
+
+        return $post_details;
+    }
 }
