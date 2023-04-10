@@ -122,7 +122,7 @@ class UserPostController extends Controller
         if( !is_null($post_uuid) ){
             $post_where = UserPost::where('uuid', $post_uuid)
                                     ->where('user_id', $this->user->id)
-                                    ->where('status', '!=', 2);
+                                    ->where('status', '!=', '2');
 
             $post = $post_where->first();
             
