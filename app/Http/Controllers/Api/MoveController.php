@@ -194,7 +194,7 @@ class MoveController extends Controller
     }
 
     public function getMyMoves(){
-        $moves = $this->user->moves()->paginate(25);
+        $moves = $this->user->moves()->orderBy('updated_at', 'DESC')->paginate(25);
         return response()->json($moves, 200);
     }
 

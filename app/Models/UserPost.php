@@ -52,4 +52,9 @@ class UserPost extends Model
     public function shared(){
         return $this->hasOne(UserPost::class, 'uuid', 'parent_uuid')->with(['pictures', 'created_by']);
     }
+
+    public function liked_by_me(){
+        return $this->hasMany(PostLikes::class, 'post_uuid', 'uuid')
+                    ->where('user_uuid', auth('api')->user()->uuid);
+    }
 }

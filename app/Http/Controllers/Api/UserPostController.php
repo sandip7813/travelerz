@@ -154,7 +154,7 @@ class UserPostController extends Controller
     }
 
     public function getMyPosts(){
-        $posts = $this->user->posts()->paginate(25);
+        $posts = $this->user->posts()->orderBy('updated_at', 'DESC')->paginate(25);
         return response()->json($posts, 200);
     }
 
@@ -283,9 +283,10 @@ class UserPostController extends Controller
     }
 
     public function showAllPosts(){
-        return UserPost::with(['pictures', 'shared', 'created_by'])
-                        ->withCount(['likes', 'Comments'])
+        return UserPost::with(['pictures', 'shared', 'created_by', 'liked_by_me'])
+                        ->withCount(['likes', 'Comments', 'shared'])
                         ->where('status', '1')
+                        ->orderBy('updated_at', 'DESC')
                         ->paginate(25);
     }
 
@@ -351,8 +352,8 @@ class UserPostController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
         }
 
-        $post_details = UserPost::with(['pictures', 'shared', 'created_by'])
-                                ->withCount(['likes', 'Comments'])
+        $post_details = UserPost::with(['pictures', 'shared', 'created_by', 'liked_by_me'])
+                                ->withCount(['likes', 'Comments', 'shared'])
                                 ->where('uuid', $post_uuid)
                                 ->where('status', '1')
                                 ->first();
