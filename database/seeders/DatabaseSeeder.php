@@ -10,6 +10,7 @@ use Database\Seeders\InterestSeeder;
 use Database\Seeders\CategoriesSeeder;
 use Database\Seeders\CountriesSeeder;
 use Database\Seeders\StatesTableSeeder;
+use Database\Seeders\Membership;
 
 class DatabaseSeeder extends Seeder
 {
@@ -33,6 +34,7 @@ class DatabaseSeeder extends Seeder
             CategoriesSeeder::class,
             CountriesSeeder::class,
             StatesTableSeeder::class,
+            Membership::class,
         ]);
     }
 }
