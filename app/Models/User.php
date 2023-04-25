@@ -112,19 +112,19 @@ class User extends Authenticatable implements JWTSubject
     }
 
     public function followings(){
-        return $this->belongsToMany(User::class, 'follower_user', 'follower_id', 'following_id')->with(['profile_picture']);
+        return $this->belongsToMany(self::class, 'follower_user', 'follower_id', 'following_id')->with(['profile_picture']);
     }
 
     public function followers(){
-        return $this->belongsToMany(User::class, 'follower_user', 'following_id', 'follower_id')->with(['profile_picture']);
+        return $this->belongsToMany(self::class, 'follower_user', 'following_id', 'follower_id')->with(['profile_picture']);
     }
 
     public function blocked_users(){
-        return $this->belongsToMany(User::class, 'block_user', 'user_id', 'blocked_user_id');
+        return $this->belongsToMany(self::class, 'block_user', 'user_id', 'blocked_user_id');
     }
 
     public function friends(){
-        return $this->belongsToMany(User::class, 'friend_user', 'user_id', 'friend_id');
+        return $this->belongsToMany(self::class, 'friend_user', 'user_id', 'friend_id');
     }
 
     public function user_country(){
@@ -146,5 +146,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Move::class, 'user_id', 'id')
                     ->with(['banner', 'category', 'created_by', 'invitees'])
                     ->where('status', '1');
+    }
+
+    public function followed_by_me(){
+        return $this->belongsToMany(self::class, 'follower_user', 'following_id', 'follower_id')
+                    ->where('follower_id', auth('api')->user()->id);
     }
 }

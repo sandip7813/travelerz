@@ -347,6 +347,15 @@ class UserController extends Controller
         ], 200);
     }
 
+    public function userDetails($user_uuid) {
+        if( !isset($user_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+        
+        $user_data = UserHelper::user_full_info($user_uuid);
+        return response()->json($user_data);
+    }
+
     public function sendSMS($recipient){
         $recipient = $recipient ?? null;
 

@@ -106,9 +106,9 @@ class UserHelper
         $user = User::where('uuid', $uuid)->first();
 
         if( isset($user->id) ){
-            $user->load(['interests', 'profile_picture', 'banner_picture']);
+            $user->load(['interests', 'profile_picture', 'banner_picture', 'followings', 'followers', 'friends', 'followed_by_me']);
         }
-
+        //$user->followed_by_me();
         return $user;
     }
 
