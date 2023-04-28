@@ -301,7 +301,7 @@ class UserPostController extends Controller
             return response()->json(['success' => false, 'message' => 'No post found!'], 400);
         }
         
-        $comments = Comments::with('descendants')
+        $comments = Comments::with(['descendants', 'comment_by'])
                                 ->where('post_uuid', $post_uuid)
                                 ->whereNull('parent_uuid')
                                 ->get()->toArray();

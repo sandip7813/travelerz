@@ -30,4 +30,8 @@ class Comments extends Model
     public function parent(){
         return $this->belongsTo(\App\Models\Comments::class, 'parent_id');
     }
+
+    public function comment_by(){
+        return $this->hasOne(User::class, 'uuid', 'user_uuid')->with(['profile_picture']);
+    }
 }
