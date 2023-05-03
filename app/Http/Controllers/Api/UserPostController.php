@@ -320,6 +320,10 @@ class UserPostController extends Controller
 
         $parent_uuid = $request->parent_uuid ?? null;
 
+        if( !is_null($parent_uuid) ){
+            $parent_uuid = PostHelper::fetchPostUuid($parent_uuid);
+        }
+
         $check_post = UserPost::where('uuid', $parent_uuid)->exists();
 
         if( !$check_post ){

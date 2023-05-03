@@ -122,4 +122,10 @@ class PostHelper
     public static function shared_count($post_uuid){
         return UserPost::where('parent_uuid', $post_uuid)->count();
     }
+
+    public static function fetchPostUuid($parent_uuid){
+        $parent_post = UserPost::where('uuid', $parent_uuid)->first();
+
+        return !is_null($parent_post->parent_uuid) ? $parent_post->parent_uuid : $parent_uuid;
+    }
 }
