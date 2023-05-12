@@ -55,10 +55,11 @@ class MoveController extends Controller
         ]);
 
         $move_uuid = $move->uuid ?? null;
-        $invited_members = $request->invited_members ?? [];
+        $invited_members = $request->invited_members ?? null;
 
-        if( !is_null($move_uuid) && !empty($invited_members) ){
-            $invited_users = User::whereIn('id', $invited_members)->get();
+        if( !is_null($move_uuid) && !is_null($invited_members) ){
+            $invited_array = explode(',', $invited_members);
+            $invited_users = User::whereIn('id', $invited_array)->get();
             $move->invitees()->attach($invited_users);
         }
 
@@ -104,9 +105,9 @@ class MoveController extends Controller
             'title' => 'required',
             'move_on'=> 'required|date_format:Y-m-d H:i:s',
             'category' => 'required',
-            /* 'location' => 'required',
+            'location' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required', */
+            'longitude' => 'required',
             'privacy' => 'required',
         ]);
 
@@ -194,7 +195,7 @@ class MoveController extends Controller
     }
 
     public function getMyMoves(){
-        $moves = $this->user->moves()->orderBy('updated_at', 'DESC')->paginate(25);
+        $moves = $this->user->moves()->orderBy('updated_at', 'DESC')->paginate(2);
         return response()->json($moves, 200);
     }
 

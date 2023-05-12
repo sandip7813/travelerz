@@ -102,14 +102,6 @@ class UserPostController extends Controller
     }
 
     public function createUpdatePost(Request $request){
-        /* $validator = Validator::make($request->all(), [
-            'content' => 'required',
-        ]);
-
-        if( $validator->fails() ){
-            return response()->json($validator->errors()->toJson(), 422);
-        } */
-
         $post_uuid = $request->post_uuid ?? null;
 
         $post_array = [
@@ -154,7 +146,7 @@ class UserPostController extends Controller
     }
 
     public function getMyPosts(){
-        $posts = $this->user->posts()->orderBy('updated_at', 'DESC')->paginate(25);
+        $posts = $this->user->posts()->orderBy('updated_at', 'DESC')->paginate(2);
         return response()->json($posts, 200);
     }
 
@@ -287,7 +279,7 @@ class UserPostController extends Controller
                         ->withCount(['likes', 'Comments', 'shared'])
                         ->where('status', '1')
                         ->orderBy('updated_at', 'DESC')
-                        ->paginate(25);
+                        ->paginate(2);
     }
 
     public function showComments($post_uuid){
