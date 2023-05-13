@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\InterestController;
 use App\Http\Controllers\Api\UserPostController;
 use App\Http\Controllers\Api\MoveController;
 use App\Http\Controllers\Api\GeneralController;
+use App\Http\Controllers\Api\MembershipController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,3 +83,5 @@ Route::get('/interest/all', [InterestController::class, 'getAllActiveInterests']
 
 Route::get('/countries', [GeneralController::class, 'getCountries']);
 Route::get('/states', [GeneralController::class, 'getStates']);
+
+Route::get('/memberships/all', [GeneralController::class, 'getMemberships']);

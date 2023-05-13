@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Models\Membership;
+
 class GeneralController extends Controller
 {
     public function getCountries(Request $request){
@@ -24,6 +26,15 @@ class GeneralController extends Controller
         return response()->json([
             'success' => true,
             'states' => $getStates
+        ], 200);
+    }
+
+    public function getMemberships(){
+        $memberships = Membership::all();
+
+        return response()->json([
+            'success' => true,
+            'memberships' => $memberships
         ], 200);
     }
 }
