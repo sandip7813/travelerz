@@ -76,6 +76,10 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/move/delete-banner', [MoveController::class, 'deleteBanner']);
     Route::post('/move/delete-invited', [MoveController::class, 'deleteInvited']);
     Route::post('/move/delete', [MoveController::class, 'deleteMove']);
+
+    Route::get('/payment/get-details', [MembershipController::class, 'getPaymentDetails']);
+    Route::post('/stripe/generate-customer', [MembershipController::class, 'generateStripeCustomer']);
+    Route::post('/payment/save-details', [MembershipController::class, 'savePaymentDetails']);
 });
 
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);

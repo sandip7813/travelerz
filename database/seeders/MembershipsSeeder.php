@@ -19,13 +19,19 @@ class MembershipsSeeder extends Seeder
         $memberships = [
             [
                 'uuid' => (string) Str::uuid(),
-                'name' => 'Anually',
+                'name' => 'Platinum',
                 'amount' => 100,
                 'duration' => 365
             ],
             [
                 'uuid' => (string) Str::uuid(),
-                'name' => 'Monthly',
+                'name' => 'Silver',
+                'amount' => 50,
+                'duration' => 180
+            ],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Gold',
                 'amount' => 10,
                 'duration' => 30
             ],
