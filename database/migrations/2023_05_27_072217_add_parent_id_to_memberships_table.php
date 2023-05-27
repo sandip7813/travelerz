@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('user_posts', function (Blueprint $table) {
-            if (!Schema::hasColumn('comments', 'parent_uuid')){
-                $table->string('parent_uuid')->nullable()->after('longitude');
+        Schema::table('memberships', function (Blueprint $table) {
+            if (!Schema::hasColumn('memberships', 'parent_id')){
+                $table->integer('parent_id')->nullable()->after('name');
             }
         });
     }
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('user_posts', function (Blueprint $table) {
+        Schema::table('memberships', function (Blueprint $table) {
             //
         });
     }

@@ -14,7 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('comments', function (Blueprint $table) {
-            $table->integer('parent_id')->nullable()->after('user_uuid');
+            if (!Schema::hasColumn('comments', 'parent_id')){
+                $table->integer('parent_id')->nullable()->after('user_uuid');
+            }
         });
     }
 
