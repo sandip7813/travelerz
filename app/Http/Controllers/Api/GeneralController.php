@@ -30,7 +30,7 @@ class GeneralController extends Controller
     }
 
     public function getMemberships(){
-        $memberships = Membership::all();
+        $memberships = Membership::with('frequency')->whereNull('parent_id')->get();
 
         return response()->json([
             'success' => true,

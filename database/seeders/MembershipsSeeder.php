@@ -20,18 +20,61 @@ class MembershipsSeeder extends Seeder
             [
                 'uuid' => (string) Str::uuid(),
                 'name' => 'Platinum',
+                'parent_id' => NULL,
+                'amount' => NULL,
+                'duration' => NULL
+            ],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Annually',
+                'parent_id' => 1,
+                'amount' => 200,
+                'duration' => 365
+            ],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Monthly',
+                'parent_id' => 1,
+                'amount' => 50,
+                'duration' => 30
+            ],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Silver',
+                'amount' => NULL,
+                'duration' => NULL
+            ],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Annually',
+                'parent_id' => 4,
+                'amount' => 150,
+                'duration' => 365
+            ],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Monthly',
+                'parent_id' => 4,
+                'amount' => 25,
+                'duration' => 30
+            ],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Gold',
+                'amount' => NULL,
+                'duration' => NULL
+            ],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Annually',
+                'parent_id' => 7,
                 'amount' => 100,
                 'duration' => 365
             ],
             [
                 'uuid' => (string) Str::uuid(),
-                'name' => 'Silver',
-                'amount' => 50,
-                'duration' => 180
-            ],
-            [
-                'uuid' => (string) Str::uuid(),
-                'name' => 'Gold',
+                'name' => 'Monthly',
+                'parent_id' => 7,
                 'amount' => 10,
                 'duration' => 30
             ],

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 use App\Models\User;
+use App\Models\Membership;
 
 class Membership extends Model
 {
@@ -21,5 +22,9 @@ class Membership extends Model
         self::creating(function ($model) {
             $model->uuid = (string) Str::uuid();
         });
+    }
+
+    public function frequency(){
+        return $this->hasMany(Membership::class, 'parent_id', 'id');
     }
 }
