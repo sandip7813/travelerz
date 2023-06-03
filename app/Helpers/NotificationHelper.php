@@ -1,25 +1,11 @@
 <?php
-
-namespace App\Http\Controllers\Api;
-
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+namespace App\Helpers;
 
 use App\Models\PushNotification;
 
-class PushNotificationController extends Controller
+class MoveHelper
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        $push_notifications = PushNotification::orderBy('created_at', 'desc')->get();
-        return view('notification.index', compact('push_notifications'));
-    }
-    public function bulksend(Request $req){
+    public function sendNotification(){
         $comment = new PushNotification();
         $comment->title = $req->input('title');
         $comment->body = $req->input('body');
@@ -60,25 +46,5 @@ class PushNotificationController extends Controller
         $result = curl_exec ( $ch );
         //var_dump($result);
         curl_close ( $ch );
-        return redirect()->back()->with('success', 'Notification Send successfully');
-    }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('notification.create');
-    }
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\PushNotification  $pushNotification
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(PushNotification $pushNotification)
-    {
-        //
     }
 }

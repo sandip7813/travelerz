@@ -49,4 +49,9 @@ return [
         'redirect' => config('app.url') . '/login/facebook/callback',
     ],
 
+    'firebase' => [
+        'url' => env('FIREBASE_URL', 'https://fcm.googleapis.com/fcm/send'),
+        'server_key' => env('FIREBASE_SERVER_KEY'),
+    ],
+
 ];
