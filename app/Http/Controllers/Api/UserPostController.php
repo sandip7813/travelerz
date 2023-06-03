@@ -360,4 +360,11 @@ class UserPostController extends Controller
 
         return $post_details;
     }
+
+    public function mostLikedPosts(){
+        return UserPost::has('likes')
+                        ->withCount('likes')
+                        ->orderByDesc('likes_count')
+                        ->limit(5)->get();
+    }
 }

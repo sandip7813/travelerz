@@ -68,6 +68,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/post/{post_uuid}/show-comments', [UserPostController::class, 'showComments']);
     Route::post('/post/share', [UserPostController::class, 'sharePost']);
     Route::get('/post/{uuid}/details', [UserPostController::class, 'postDetails']);
+    Route::post('/post/most-liked', [UserPostController::class, 'mostLikedPosts']);
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::post('/move/edit', [MoveController::class, 'editMove']);
