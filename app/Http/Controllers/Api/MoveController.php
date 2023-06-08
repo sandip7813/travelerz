@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Medias;
 use App\Models\Move;
 use App\Models\User;
+use App\Models\Bookmark;
 
 use App\Helpers\UserHelper;
 use App\Helpers\MoveHelper;
@@ -30,9 +31,9 @@ class MoveController extends Controller
             'title' => 'required',
             'move_on'=> 'required|date_format:Y-m-d H:i:s',
             'category' => 'required',
-            /* 'location' => 'required',
+            'location' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required', */
+            'longitude' => 'required',
             'privacy' => 'required',
         ]);
 
@@ -239,5 +240,44 @@ class MoveController extends Controller
         $response_status = $delete_response['status'] ?? null;
 
         return response()->json($delete_response, $response_status);
+    }
+
+    public function saveUnsaveBookmark(Request $request){
+        $move_uuid = $request->move_uuid ?? null;
+
+        if( is_null($move_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $check_move = Move::where('uuid', $move_uuid)->exists();
+
+        if( !$check_move ){
+            return response()->json(['success' => false, 'message' => 'No move found!'], 400);
+        }
+
+        $bookmark_qry = Bookmark::where('move_uuid', $move_uuid)
+                                ->where('user_uuid', $this->user->uuid);
+        
+        $bookmark = $bookmark_qry->exists();
+
+        if( $bookmark ){
+            $bookmark_qry->delete();
+            $response_msg = 'unsaved';
+        }
+        else{
+            Bookmark::create(['move_uuid' => $move_uuid]);
+            $response_msg = 'saved';
+        }
+
+        return response()->json([
+            'message' => 'You have ' . $response_msg . ' the move',
+            'move_uuid' => $move_uuid
+        ], 200);
+    }
+
+    public function mySavedMoves(Request $request){
+        $my_saved_moves = Bookmark::with('move')->where('user_uuid', $this->user->uuid)
+                                    ->orderBy('updated_at', 'DESC')->paginate(2);
+        return response()->json($my_saved_moves, 200);
     }
 }
