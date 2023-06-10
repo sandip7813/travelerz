@@ -21,6 +21,14 @@ use Illuminate\Support\Facades\File;
 
 class MoveController extends Controller
 {
+    protected $invite_status = [
+        0 => 'invited',
+        1 => 'interested',
+        2 => 'maybe',
+        3 => 'going',
+        4 => 'not going'
+    ];
+
     public function __construct(){
         $this->middleware('auth:api');
         $this->user = auth('api')->user();
@@ -189,7 +197,7 @@ class MoveController extends Controller
     }
 
     public function moveDetails($uuid){
-        return Move::with(['banner', 'category', 'created_by', 'invitees'])
+        return Move::with(['banner', 'category', 'created_by', 'invitees', 'interested', 'maybe', 'going', 'notgoing'])
                     ->where('uuid', $uuid)
                     ->where('status', '1')
                     ->first();
@@ -279,5 +287,39 @@ class MoveController extends Controller
         $my_saved_moves = Bookmark::with('move')->where('user_uuid', $this->user->uuid)
                                     ->orderBy('updated_at', 'DESC')->paginate(2);
         return response()->json($my_saved_moves, 200);
+    }
+
+    public function movesInvited(){
+        return $this->user->moves_invited()->get();
+    }
+
+    public function updateInviteStatus(Request $request){
+        $move_uuid = $request->move_uuid ?? null;
+        $invite_status = $request->status ?? null;
+
+        if( is_null($move_uuid) || is_null($invite_status) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $move = Move::where('uuid', $move_uuid)->first();
+
+        if( !isset($move->id) ){
+            return response()->json(['success' => false, 'message' => 'No move found!'], 400);
+        }
+
+        $move_id = $move->id;
+        $user = $this->user;
+
+        $moves_invited = $user->moves_invited();
+
+        if( !$moves_invited->where('move_id', $move_id)->exists() ){
+            return response()->json(['success' => false, 'message' => 'You are not invited in this move!'], 400);
+        }
+
+        $moves_invited->updateExistingPivot($move_id, ['invite_status' => $invite_status]);
+
+        return response()->json([
+            'message' => 'Status updated successfully!',
+        ], 200); 
     }
 }

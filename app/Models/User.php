@@ -16,6 +16,7 @@ use App\Models\Medias;
 use App\Models\Country;
 use App\Models\State;
 use App\Models\UserPost;
+use App\Models\Move;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -151,5 +152,9 @@ class User extends Authenticatable implements JWTSubject
     public function followed_by_me(){
         return $this->belongsToMany(self::class, 'follower_user', 'following_id', 'follower_id')
                     ->where('follower_id', auth('api')->user()->id);
+    }
+
+    public function moves_invited(){
+        return $this->belongsToMany(Move::class, 'invitee_move', 'invitee_id', 'move_id')->withPivot('invite_status');
     }
 }

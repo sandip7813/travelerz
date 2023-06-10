@@ -44,4 +44,20 @@ class Move extends Model
     public function invitees(){
         return $this->belongsToMany(User::class, 'invitee_move', 'move_id', 'invitee_id')->with(['profile_picture']);
     }
+
+    public function interested(){
+        return $this->belongsToMany(User::class, 'invitee_move', 'move_id', 'invitee_id')->where('invite_status', 1)->with(['profile_picture']);
+    }
+
+    public function maybe(){
+        return $this->belongsToMany(User::class, 'invitee_move', 'move_id', 'invitee_id')->where('invite_status', 2)->with(['profile_picture']);
+    }
+
+    public function going(){
+        return $this->belongsToMany(User::class, 'invitee_move', 'move_id', 'invitee_id')->where('invite_status', 3)->with(['profile_picture']);
+    }
+
+    public function notgoing(){
+        return $this->belongsToMany(User::class, 'invitee_move', 'move_id', 'invitee_id')->where('invite_status', 4)->with(['profile_picture']);
+    }
 }
