@@ -91,12 +91,12 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/chat', [ChatController::class, 'index']);
     Route::post('/chat/store', [ChatController::class, 'store']);
     Route::get('/chat/{id}', [ChatController::class, 'show']);
-
     Route::get('/chat_message', [ChatMessageController::class, 'index']);
     Route::post('/chat/message/store', [ChatMessageController::class, 'store']);
 
 });
 
+Route::post('/category/single', [CategoryController::class, 'getCategory']);
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);
 Route::get('/interest/all', [InterestController::class, 'getAllActiveInterests']);
 

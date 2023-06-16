@@ -242,10 +242,13 @@ class UserPostController extends Controller
             $response_message = 'Comment has been added successfully!';
         }
 
+        $getComment = Comments::find($comment->id);
+
         return response()->json([
             'message' => $response_message,
             'post_uuid' => $post_uuid,
-            'comment_uuid' => $comment->uuid
+            'comment_uuid' => $comment->uuid,
+            'comment_by' => $getComment->comment_by()->get()
         ], 200);
     }
 

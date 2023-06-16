@@ -17,4 +17,25 @@ class CategoryController extends Controller
             'categories' => $categories
         ], 200);
     }
+
+    public function getCategory(Request $request){
+        $id = $request->id ?? null;
+        $uuid = $request->uuid ?? null;
+
+        if( is_null($id) && is_null($uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $categoryQry = Categories::select('id', 'uuid', 'name', 'slug', 'created_at')->where('status', '1');
+
+        if( !is_null($id) ){
+            $categoryQry->whereId($id);
+        }
+
+        if( !is_null($uuid) ){
+            $categoryQry->where('uuid', $uuid);
+        }
+
+        return $categoryQry->first()->toArray();
+    }
 }
