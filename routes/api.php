@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\UserPostController;
 use App\Http\Controllers\Api\MoveController;
 use App\Http\Controllers\Api\GeneralController;
 use App\Http\Controllers\Api\MembershipController;
+use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\ChatMessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,6 +87,14 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/payment/get-details', [MembershipController::class, 'getPaymentDetails']);
     Route::post('/stripe/generate-customer', [MembershipController::class, 'generateStripeCustomer']);
     Route::post('/payment/save-details', [MembershipController::class, 'savePaymentDetails']);
+
+    Route::post('/chat', [ChatController::class, 'index']);
+    Route::post('/chat/store', [ChatController::class, 'store']);
+    Route::get('/chat/{id}', [ChatController::class, 'show']);
+
+    Route::get('/chat_message', [ChatMessageController::class, 'index']);
+    Route::post('/chat/message/store', [ChatMessageController::class, 'store']);
+
 });
 
 Route::get('/category/all', [CategoryController::class, 'getAllActiveCategories']);

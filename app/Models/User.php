@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Models\Interest;
 use App\Models\Medias;
@@ -156,5 +157,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function moves_invited(){
         return $this->belongsToMany(Move::class, 'invitee_move', 'invitee_id', 'move_id')->withPivot('invite_status');
+    }
+
+    public function chats(): HasMany
+    {
+        return $this->hasMany(Chat::class, 'created_by');
     }
 }
