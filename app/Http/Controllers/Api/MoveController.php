@@ -12,6 +12,7 @@ use App\Models\Bookmark;
 
 use App\Helpers\UserHelper;
 use App\Helpers\MoveHelper;
+use App\Helpers\ChatHelper;
 
 use Auth;
 use Validator;
@@ -70,6 +71,8 @@ class MoveController extends Controller
             $invited_array = explode(',', $invited_members);
             $invited_users = User::whereIn('id', $invited_array)->get();
             $move->invitees()->attach($invited_users);
+
+            ChatHelper::createChatRoomFromMove($move_uuid);
         }
 
         $field_name = 'move_banner';
@@ -134,7 +137,7 @@ class MoveController extends Controller
         if( !isset($move->id) ){
             return response()->json(['success' => false, 'message' => 'No move found!'], 400);
         }
-        
+
         $move->title = $request->title;
         $move->move_on = $request->move_on;
         $move->location = $request->location ?? null;
@@ -150,6 +153,8 @@ class MoveController extends Controller
         if( !is_null($move_uuid) && !empty($invited_members) ){
             $invited_users = User::whereIn('id', $invited_members)->get();
             $move->invitees()->attach($invited_users);
+
+            ChatHelper::createChatRoomFromMove($move_uuid);
         }
 
         $field_name = 'move_banner';
@@ -204,7 +209,7 @@ class MoveController extends Controller
     }
 
     public function getMyMoves(){
-        $moves = $this->user->moves()->orderBy('updated_at', 'DESC')->paginate(2);
+        $moves = $this->user->moves()->orderBy('updated_at', 'DESC')->paginate(25);
         return response()->json($moves, 200);
     }
 
@@ -285,7 +290,7 @@ class MoveController extends Controller
 
     public function mySavedMoves(Request $request){
         $my_saved_moves = Bookmark::with('move')->where('user_uuid', $this->user->uuid)
-                                    ->orderBy('updated_at', 'DESC')->paginate(2);
+                                    ->orderBy('updated_at', 'DESC')->paginate(25);
         return response()->json($my_saved_moves, 200);
     }
 

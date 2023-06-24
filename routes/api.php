@@ -57,6 +57,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/user/sync', [UserController::class, 'syncUser']);
     Route::get('/user/{uuid}/details', [UserController::class, 'userDetails']);
     Route::get('/user/{recipient}/send-sms', [UserController::class, 'sendSMS']);
+    Route::get('/user/update-fcm-token', [UserController::class, 'updateFcmToken']);
 
     Route::post('/post/upload-picture', [UserPostController::class, 'uploadPostPicture']);
     Route::post('/post/delete-picture', [UserPostController::class, 'deletePostPicture']);
@@ -88,11 +89,11 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/stripe/generate-customer', [MembershipController::class, 'generateStripeCustomer']);
     Route::post('/payment/save-details', [MembershipController::class, 'savePaymentDetails']);
 
-    Route::post('/chat', [ChatController::class, 'index']);
-    Route::post('/chat/store', [ChatController::class, 'store']);
-    Route::get('/chat/{id}', [ChatController::class, 'show']);
-    Route::get('/chat_message', [ChatMessageController::class, 'index']);
-    Route::post('/chat/message/store', [ChatMessageController::class, 'store']);
+    Route::post('/chat-room', [ChatController::class, 'chatRoom']);
+    Route::post('/chat/room/store', [ChatController::class, 'store']);
+    Route::get('/chat/room/{id}', [ChatController::class, 'show']);
+    Route::get('/chat/{room_id}/message', [ChatController::class, 'showMessages']);
+    Route::post('/chat_message/store', [ChatMessageController::class, 'store']);
 
 });
 

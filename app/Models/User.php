@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Notifications\MessageSent;
 
 use App\Models\Interest;
 use App\Models\Medias;
@@ -162,5 +163,13 @@ class User extends Authenticatable implements JWTSubject
     public function chats(): HasMany
     {
         return $this->hasMany(Chat::class, 'created_by');
+    }
+
+    public function routeNotificationForOneSignal() : array{
+        return ['tags'=>['key'=>'userId', 'relation'=>'=', 'value'=>(string)(107)]];
+    }
+
+    public function sendNewMessageNotification(array $data) : void {
+        $this->notify(new MessageSent($data));
     }
 }

@@ -14,9 +14,13 @@ class Chat extends Model
     protected $table = "chats";
     protected $guarded = ['id'];
 
-    public function participants(): HasMany
+    /* public function participants(): HasMany
     {
         return $this->hasMany(ChatParticipant::class, 'chat_id');
+    } */
+
+    public function participants(){
+        return $this->belongsToMany(User::class, 'chat_participants', 'chat_id', 'user_id')->with(['profile_picture']);
     }
 
     public function messages(): HasMany

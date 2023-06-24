@@ -6,9 +6,15 @@ use App\Http\Controllers\Api\Controller;
 
 use App\Http\Requests\GetChatRequest;
 use App\Http\Requests\StoreChatRequest;
+
 use App\Models\Chat;
+use App\Models\Move;
+use App\Models\ChatMessage;
+use App\Models\User;
+
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+
 use Auth;
 
 class ChatController extends Controller
@@ -24,24 +30,24 @@ class ChatController extends Controller
      * @param GetChatRequest $request
      * @return JsonResponse
      */
-    public function index(GetChatRequest $request): JsonResponse
+    public function chatRoom(Request $request): JsonResponse
     {
-        $data = $request->validated();
+        $move_uuid = $request->move_uuid ?? null;
 
-        $isPrivate = 1;
-        if ($request->has('is_private')) {
-            $isPrivate = (int)$data['is_private'];
+        if( is_null($move_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
         }
 
-        $chats = Chat::where('is_private', $isPrivate)
-            ->hasParticipant($this->user->id)
-            ->whereHas('messages')
-            ->with('lastMessage.user', 'participants.user')
-            ->latest('updated_at')
-            ->get();
-        return $this->success($chats);
+        $chats = Chat::whereHas('participants')
+                    ->with('participants')
+                    ->where('move_uuid', $move_uuid)
+                    ->first();
+        
+        return response()->json([
+            'success' => true,
+            'room' => $chats
+        ], 200);
     }
-
 
     /**
      * Stores a new chat
@@ -85,7 +91,7 @@ class ChatController extends Controller
      */
     private function getPreviousChat(int $otherUserId) : mixed {
 
-        $userId = auth()->user()->id;
+        $userId = $this->user->id;
 
         return Chat::where('is_private',1)
             ->whereHas('participants', function ($query) use ($userId){
@@ -129,6 +135,30 @@ class ChatController extends Controller
     {
         $chat->load('lastMessage.user', 'participants.user');
         return $this->success($chat);
+    }
+
+
+    public function showMessages(Request $request): JsonResponse
+    {
+        $roomId = $request->room_id ?? null;
+
+        $chat = Chat::find($roomId);
+
+        if( !isset($chat->id) ){
+            return response()->json(['success' => false, 'message' => 'No chat room found!'], 400);
+        }
+
+        if( !$chat->participants->contains($this->user->id) ){
+            return response()->json(['success' => false, 'message' => 'You are not a member of this chat room!'], 400);
+        }
+
+        $messages = ChatMessage::where('chat_id', $roomId)
+                                ->with('user')
+                                ->latest('created_at')
+                                ->orderBy('updated_at', 'DESC')
+                                ->paginate(25);
+        
+        return response()->json($messages, 200);
     }
 
 

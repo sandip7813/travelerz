@@ -146,7 +146,7 @@ class UserPostController extends Controller
     }
 
     public function getMyPosts(){
-        $posts = $this->user->posts()->orderBy('updated_at', 'DESC')->paginate(2);
+        $posts = $this->user->posts()->orderBy('updated_at', 'DESC')->paginate(25);
         return response()->json($posts, 200);
     }
 
@@ -282,7 +282,7 @@ class UserPostController extends Controller
                         ->withCount(['likes', 'Comments', 'shared'])
                         ->where('status', '1')
                         ->orderBy('updated_at', 'DESC')
-                        ->paginate(2);
+                        ->paginate(25);
     }
 
     public function showComments($post_uuid){

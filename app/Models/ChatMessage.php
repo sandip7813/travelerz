@@ -17,7 +17,7 @@ class ChatMessage extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id')->with(['profile_picture']);
     }
 
     public function chat(): BelongsTo

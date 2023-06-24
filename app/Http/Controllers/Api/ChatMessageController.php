@@ -12,6 +12,8 @@ use App\Models\Chat;
 use App\Models\ChatMessage;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Auth;
+use Validator;
 
 class ChatMessageController extends Controller
 {
@@ -27,21 +29,22 @@ class ChatMessageController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $chatId = $request->chat_id ?? null;
+        $roomId = $request->room_id ?? null;
         $currentPage = $request->page ?? 1;
         $pageSize = $request->page_size ?? 15;
-
-        $messages = ChatMessage::where('chat_id', $chatId)
-            ->with('user')
-            ->latest('created_at')
-            ->simplePaginate(
-                $pageSize,
-                ['*'],
-                'page',
-                $currentPage
-            );
-
-        return $this->success($messages->getCollection());
+        echo $roomId;
+        $messages = ChatMessage::where('chat_id', $roomId)
+                                //->with('user')
+                                ->latest('created_at')
+                                ->get()
+                                /* ->simplePaginate(
+                                    $pageSize,
+                                    ['*'],
+                                    'page',
+                                    $currentPage
+                                ) */;
+        print_r($messages);
+        return $this->success($messages);
     }
 
     /**
@@ -50,18 +53,30 @@ class ChatMessageController extends Controller
      * @param StoreMessageRequest $request
      * @return JsonResponse
      */
-    public function store(StoreMessageRequest $request) : JsonResponse
+    public function store(Request $request) : JsonResponse
     {
-        $data = $request->validated();
-        $data['user_id'] = auth()->user()->id;
+        $chatModel = get_class(new Chat());
+
+        $validator = Validator::make($request->all(), [
+            'chat_id'=>"required|exists:{$chatModel},id",
+            'message'=>'required|string',
+        ]);
+
+        if( $validator->fails() ){
+            return response()->json($validator->errors()->toJson(), 422);
+        }
+
+        $data['chat_id'] = $request->chat_id;
+        $data['user_id'] = $this->user->id;
+        $data['message'] = $request->message;
 
         $chatMessage = ChatMessage::create($data);
         $chatMessage->load('user');
 
         /// TODO send broadcast event to pusher and send notification to onesignal services
-        //$this->sendNotificationToOther($chatMessage);
+        $this->sendNotificationToOther($chatMessage);
 
-        return $this->success($chatMessage,'Message has been sent successfully.');
+        return $this->success('Message has been sent successfully.');
     }
 
     /**
@@ -74,7 +89,7 @@ class ChatMessageController extends Controller
         // TODO move this event broadcast to observer
         broadcast(new NewMessageSent($chatMessage))->toOthers();
 
-        $user = auth()->user();
+        $user = $this->user;
         $userId = $user->id;
 
         $chat = Chat::where('id',$chatMessage->chat_id)
