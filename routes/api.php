@@ -90,10 +90,10 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/payment/save-details', [MembershipController::class, 'savePaymentDetails']);
 
     Route::post('/chat-room', [ChatController::class, 'chatRoom']);
-    Route::post('/chat/room/store', [ChatController::class, 'store']);
+    Route::post('/create-chat-room', [ChatController::class, 'store']);
     Route::get('/chat/room/{id}', [ChatController::class, 'show']);
     Route::get('/chat/{room_id}/message', [ChatController::class, 'showMessages']);
-    Route::post('/chat_message/store', [ChatMessageController::class, 'store']);
+    Route::post('/send-chat-message', [ChatMessageController::class, 'store']);
 
 });
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Controller;
 
-use App\Http\Requests\GetChatRequest;
 use App\Http\Requests\StoreChatRequest;
 
 use App\Models\Chat;
@@ -24,12 +23,6 @@ class ChatController extends Controller
         $this->user = auth('api')->user();
     }
 
-    /**
-     * Gets chats
-     *
-     * @param GetChatRequest $request
-     * @return JsonResponse
-     */
     public function chatRoom(Request $request): JsonResponse
     {
         $move_uuid = $request->move_uuid ?? null;
@@ -55,32 +48,42 @@ class ChatController extends Controller
      * @param StoreChatRequest $request
      * @return JsonResponse
      */
-    public function store(StoreChatRequest $request) : JsonResponse
+    public function store(Request $request) : JsonResponse
     {
-        $data = $this->prepareStoreData($request);
+        /* $data = $this->prepareStoreData($request);
         if($data['userId'] === $data['otherUserId']){
             return $this->error('You can not create a chat with your own');
+        } */
+
+        $userId = $this->user->id;
+        $chat_with = $request->user_id ?? null;
+
+        if( is_null($chat_with) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
         }
 
-        $previousChat = $this->getPreviousChat($data['otherUserId']);
+        if($userId == $chat_with){
+            return response()->json(['success' => false, 'message' => 'You can not create chat with yourself!'], 400);
+        }
+
+        $previousChat = $this->getPreviousChat($chat_with);
 
         if($previousChat === null){
 
-            $chat = Chat::create($data['data']);
-            $chat->participants()->createMany([
-                [
-                    'user_id'=>$data['userId']
-                ],
-                [
-                    'user_id'=>$data['otherUserId']
-                ]
+            $chat = Chat::create([
+                'created_by' => $userId,
+                'name' => $userId . '-' . $chat_with
             ]);
 
-            $chat->refresh()->load('lastMessage.user','participants.user');
+            $participents = [$userId, $chat_with];
+            $users = User::whereIn('id', $participents)->get();
+            $chat->participants()->sync($users, false);
+
+            $chat->refresh()->load('lastMessage', 'participants');
             return $this->success($chat);
         }
 
-        return $this->success($previousChat->load('lastMessage.user','participants.user'));
+        return $this->success($previousChat->load('lastMessage', 'participants'));
     }
 
     /**
@@ -93,14 +96,15 @@ class ChatController extends Controller
 
         $userId = $this->user->id;
 
-        return Chat::where('is_private',1)
-            ->whereHas('participants', function ($query) use ($userId){
-                $query->where('user_id',$userId);
-            })
-            ->whereHas('participants', function ($query) use ($otherUserId){
-                $query->where('user_id',$otherUserId);
-            })
-            ->first();
+        return Chat::where('is_private', 1)
+                    ->whereNull('move_uuid')
+                    ->whereHas('participants', function ($query) use ($userId){
+                        $query->where('user_id',$userId);
+                    })
+                    ->whereHas('participants', function ($query) use ($otherUserId){
+                        $query->where('user_id',$otherUserId);
+                    })
+                    ->first();
     }
 
 
@@ -110,19 +114,19 @@ class ChatController extends Controller
      * @param StoreChatRequest $request
      * @return array
      */
-    private function prepareStoreData(StoreChatRequest $request) : array
+    /* private function prepareStoreData(StoreChatRequest $request) : array
     {
         $data = $request->validated();
         $otherUserId = (int)$data['user_id'];
         unset($data['user_id']);
-        $data['created_by'] = auth()->user()->id;
+        $data['created_by'] = $this->user->id;
 
         return [
             'otherUserId' => $otherUserId,
-            'userId' => auth()->user()->id,
+            'userId' => $this->user->id,
             'data' => $data,
         ];
-    }
+    } */
 
 
     /**
@@ -133,7 +137,7 @@ class ChatController extends Controller
      */
     public function show(Chat $chat): JsonResponse
     {
-        $chat->load('lastMessage.user', 'participants.user');
+        $chat->load('lastMessage', 'participants');
         return $this->success($chat);
     }
 

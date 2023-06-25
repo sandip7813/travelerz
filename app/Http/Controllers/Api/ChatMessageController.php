@@ -98,7 +98,7 @@ class ChatMessageController extends Controller
             }])
             ->first();
         if(count($chat->participants) > 0){
-            $otherUserId = $chat->participants[0]->user_id;
+            $otherUserId = $chat->participants[0]->id;
 
             $otherUser = User::where('id',$otherUserId)->first();
             $otherUser->sendNewMessageNotification([

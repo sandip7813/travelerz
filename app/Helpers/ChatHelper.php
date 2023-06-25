@@ -24,6 +24,7 @@ class ChatHelper
                 'created_by' => $move->user_id ?? null,
                 'name' => $move->title ?? null,
                 'move_uuid' => $move->uuid ?? null,
+                'is_private' => 0
             ]
         );
 
