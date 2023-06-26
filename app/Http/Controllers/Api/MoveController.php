@@ -208,8 +208,16 @@ class MoveController extends Controller
                     ->first();
     }
 
-    public function getMyMoves(){
-        $moves = $this->user->moves()->orderBy('updated_at', 'DESC')->paginate(25);
+    public function getMyMoves(Request $request){
+        $move_date = $request->move_date ?? null;
+        $move_qry = $this->user->moves();
+
+        if( !is_null($move_date) ){
+            $move_qry->whereDate('move_on', \Carbon\Carbon::createFromFormat('d/m/Y', $move_date));
+        }
+        //$moves = $this->user->moves()->orderBy('updated_at', 'DESC')->paginate(25);
+        $moves = $move_qry->orderBy('move_on', 'DESC')->paginate(25);
+
         return response()->json($moves, 200);
     }
 
@@ -294,8 +302,19 @@ class MoveController extends Controller
         return response()->json($my_saved_moves, 200);
     }
 
-    public function movesInvited(){
-        return $this->user->moves_invited()->get();
+    public function movesInvited(Request $request){
+        //return $this->user->moves_invited()->get();
+
+        $move_date = $request->move_date ?? null;
+        $move_qry = $this->user->moves_invited();
+
+        if( !is_null($move_date) ){
+            $move_qry->whereDate('move_on', \Carbon\Carbon::createFromFormat('d/m/Y', $move_date));
+        }
+        //$moves = $this->user->moves()->orderBy('updated_at', 'DESC')->paginate(25);
+        $moves = $move_qry->orderBy('move_on', 'DESC')->paginate(25);
+
+        return response()->json($moves, 200);
     }
 
     public function updateInviteStatus(Request $request){
