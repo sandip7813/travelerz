@@ -76,13 +76,13 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::post('/move/edit', [MoveController::class, 'editMove']);
     Route::get('/move/{uuid}/details', [MoveController::class, 'moveDetails']);
-    Route::post('/my/move-list', [MoveController::class, 'getMyMoves']);
+    Route::get('/my/move-list', [MoveController::class, 'getMyMoves']);
     Route::post('/move/delete-banner', [MoveController::class, 'deleteBanner']);
     Route::post('/move/delete-invited', [MoveController::class, 'deleteInvited']);
     Route::post('/move/delete', [MoveController::class, 'deleteMove']);
     Route::post('/move/save-unsave', [MoveController::class, 'saveUnsaveBookmark']);
     Route::get('/my/saved-moves', [MoveController::class, 'mySavedMoves']);
-    Route::post('/move/invited', [MoveController::class, 'movesInvited']);
+    Route::get('/move/invited', [MoveController::class, 'movesInvited']);
     Route::post('/move/update-invite-status', [MoveController::class, 'updateInviteStatus']);
 
     Route::get('/payment/get-details', [MembershipController::class, 'getPaymentDetails']);

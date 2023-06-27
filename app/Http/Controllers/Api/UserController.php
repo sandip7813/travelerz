@@ -147,26 +147,25 @@ class UserController extends Controller
 
     public function addInterest(Request $request){
         $user_id = $this->user->id;
-        $interest_ids = $request->interest_ids ?? [];
+        $interest_id = $request->interest_id ? (int) $request->interest_id : null;
 
-        if( !is_array($interest_ids) ){
-            return response()->json(['success' => false, 'message' => 'Invalid data provided!'], 400);
+        if( is_null($interest_id) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
         }
 
-        if( count($interest_ids) == 0 ){
-            return response()->json(['success' => false, 'message' => 'You have to select atleast one interest!'], 400);
-        }
+        /* InterestUser::where('user_id', $user_id)
+                    ->where('interest_id', $interest_id)
+                    ->delete(); */
+        
+        $interestParams = [
+            'user_id' => $user_id,
+            'interest_id' => $interest_id,
+        ];
 
-        InterestUser::where('user_id', $user_id)->delete();
-
-        if( count($interest_ids) > 0 ){
-            foreach($interest_ids as $interest){
-                InterestUser::create([
-                    'user_id' => $user_id,
-                    'interest_id' => $interest,
-                ]);
-            }
-        }
+        InterestUser::firstOrCreate(
+            $interestParams,
+            $interestParams
+        );
 
         return response()->json([
             'success' => true,
