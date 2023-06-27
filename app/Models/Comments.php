@@ -34,4 +34,8 @@ class Comments extends Model
     public function comment_by(){
         return $this->hasOne(User::class, 'uuid', 'user_uuid')->with(['profile_picture']);
     }
+
+    public function descendants(){
+        return $this->hasMany(self::class, 'parent_uuid', 'uuid')->with('comment_by');
+    }
 }
