@@ -9,6 +9,7 @@ use App\Models\Medias;
 use App\Models\UserPost;
 use App\Models\PostLikes;
 use App\Models\Comments;
+use App\Models\User;
 
 use Auth;
 use Validator;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\File;
 
 use App\Helpers\UserHelper;
 use App\Helpers\PostHelper;
+
+use App\Notifications\LikePostNotification;
 
 class UserPostController extends Controller
 {
@@ -157,9 +160,9 @@ class UserPostController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
         }
 
-        $check_post = UserPost::where('uuid', $post_uuid)->exists();
+        $check_post = UserPost::where('uuid', $post_uuid)->first();
 
-        if( !$check_post ){
+        if( !isset($check_post->id) ){
             return response()->json(['success' => false, 'message' => 'No post found!'], 400);
         }
 
@@ -173,8 +176,23 @@ class UserPostController extends Controller
             $response_msg = 'unliked';
         }
         else{
-            PostLikes::create(['post_uuid' => $post_uuid]);
+            $post_like = PostLikes::create(['post_uuid' => $post_uuid]);
             $response_msg = 'liked';
+
+            $post_user_id = $check_post->user_id ?? null;
+
+            if($post_user_id != $this->user->id){
+                $PostUser = User::find($post_user_id);
+                
+                $notoficationParams = [];
+                $notoficationParams['post_id'] = $check_post->id;
+                $notoficationParams['post_uuid'] = $post_uuid;
+                $notoficationParams['user_id'] = $post_user_id;
+                $notoficationParams['user_uuid'] = $PostUser->uuid ?? null;
+                $notoficationParams['liked_by'] = $post_like->user_uuid ?? null;
+
+                $PostUser->notify(new LikePostNotification($notoficationParams));
+            }
         }
 
         return response()->json([
@@ -364,9 +382,36 @@ class UserPostController extends Controller
         return $post_details;
     }
 
-    public function mostLikedPosts(){
+    public function mostLikedPosts(Request $request){
+        $user_uuid = $request->user_uuid ?? null;
+
+        if( is_null($user_uuid) ){
+            return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
+        }
+
+        $user = User::where('uuid', $user_uuid)
+                    ->where('role', 0)->where('status', 1)
+                    ->first();
+        
+        $user_id = $user->id ?? null;
+
+        if( is_null($user_id) ){
+            return response()->json(['success' => false, 'message' => 'No user found!'], 400);
+        }
+
         return UserPost::has('likes')
+                        ->with('pictures')
                         ->withCount('likes')
+                        ->where('user_id', $user_id)
+                        ->orderByDesc('likes_count')
+                        ->limit(5)->get();
+    }
+
+    public function myMostLikedPosts(){
+        return UserPost::has('likes')
+                        ->with('pictures')
+                        ->withCount('likes')
+                        ->where('user_id', $this->user->id)
                         ->orderByDesc('likes_count')
                         ->limit(5)->get();
     }

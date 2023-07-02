@@ -355,6 +355,13 @@ class UserController extends Controller
         return response()->json($user_data);
     }
 
+    public function myInterests(){
+        $user = $this->user;
+        $user->load('interests');
+
+        return $user;
+    }
+
     public function sendSMS($recipient){
         $recipient = $recipient ?? null;
 

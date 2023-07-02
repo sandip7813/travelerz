@@ -10,6 +10,7 @@ use App\Models\Chat;
 use App\Models\Move;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Models\ChatParticipant;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,11 +51,6 @@ class ChatController extends Controller
      */
     public function store(Request $request) : JsonResponse
     {
-        /* $data = $this->prepareStoreData($request);
-        if($data['userId'] === $data['otherUserId']){
-            return $this->error('You can not create a chat with your own');
-        } */
-
         $userId = $this->user->id;
         $chat_with = $request->user_id ?? null;
 
@@ -163,6 +159,21 @@ class ChatController extends Controller
                                 ->paginate(25);
         
         return response()->json($messages, 200);
+    }
+
+    public function participantsList(){
+        $singleChatRooms = ChatParticipant::where('user_id', $this->user->id)
+                                            ->whereHas('chat_room', function ($query) {
+                                                $query->whereNull('move_uuid');
+                                                $query->whereNotNull('name');
+                                            })
+                                            ->pluck('chat_id')->toArray();
+        
+        $participents = ChatParticipant::with('user')
+                                        ->where('user_id', '!=', $this->user->id)
+                                        ->get();
+        
+        return response()->json($participents, 200);
     }
 
 

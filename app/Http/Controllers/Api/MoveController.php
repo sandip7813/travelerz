@@ -348,4 +348,5 @@ class MoveController extends Controller
             'message' => 'Status updated successfully!',
         ], 200); 
     }
+
 }

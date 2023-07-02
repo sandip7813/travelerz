@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\GeneralController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\ChatMessageController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/my/upload-profile-picture', [UserController::class, 'uploadProfilePicture']);
     Route::post('/my/upload-banner-picture', [UserController::class, 'uploadBannerPicture']);
     Route::post('/my/delete-picture', [UserController::class, 'deletePicture']);
+    Route::get('/my/interests', [UserController::class, 'myInterests']);
 
     Route::post('/user/add-interest', [UserController::class, 'addInterest']);
     Route::post('/user/follow', [UserController::class, 'followUser']);
@@ -72,6 +74,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::post('/post/share', [UserPostController::class, 'sharePost']);
     Route::get('/post/{uuid}/details', [UserPostController::class, 'postDetails']);
     Route::post('/post/most-liked', [UserPostController::class, 'mostLikedPosts']);
+    Route::get('/my-post/most-liked', [UserPostController::class, 'myMostLikedPosts']);
 
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::post('/move/edit', [MoveController::class, 'editMove']);
@@ -94,7 +97,10 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/chat/room/{id}', [ChatController::class, 'show']);
     Route::get('/chat/{room_id}/message', [ChatController::class, 'showMessages']);
     Route::post('/send-chat-message', [ChatMessageController::class, 'store']);
+    Route::get('/chat/participants', [ChatController::class, 'participantsList']);
 
+    Route::post('/notifications', [NotificationController::class, 'getUserNotifications']);
+    Route::post('/notification/make-read', [NotificationController::class, 'markNotificationsAsRead']);
 });
 
 Route::post('/category/single', [CategoryController::class, 'getCategory']);
