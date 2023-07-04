@@ -21,6 +21,7 @@ use App\Helpers\UserHelper;
 use App\Helpers\PostHelper;
 
 use App\Notifications\LikePostNotification;
+use App\Notifications\SharePostNotification;
 
 class UserPostController extends Controller
 {
@@ -176,7 +177,7 @@ class UserPostController extends Controller
             $response_msg = 'unliked';
         }
         else{
-            $post_like = PostLikes::create(['post_uuid' => $post_uuid]);
+            $liked_post = PostLikes::create(['post_uuid' => $post_uuid]);
             $response_msg = 'liked';
 
             $post_user_id = $check_post->user_id ?? null;
@@ -189,7 +190,7 @@ class UserPostController extends Controller
                 $notoficationParams['post_uuid'] = $post_uuid;
                 $notoficationParams['user_id'] = $post_user_id;
                 $notoficationParams['user_uuid'] = $PostUser->uuid ?? null;
-                $notoficationParams['liked_by'] = $post_like->user_uuid ?? null;
+                $notoficationParams['liked_by'] = $liked_post->user_uuid ?? null;
 
                 $PostUser->notify(new LikePostNotification($notoficationParams));
             }
@@ -337,9 +338,9 @@ class UserPostController extends Controller
             $parent_uuid = PostHelper::fetchPostUuid($parent_uuid);
         }
 
-        $check_post = UserPost::where('uuid', $parent_uuid)->exists();
+        $parent_post = UserPost::where('uuid', $parent_uuid)->first();
 
-        if( !$check_post ){
+        if( !isset($parent_post->id) ){
             return response()->json(['success' => false, 'message' => 'No post found to share!'], 400);
         }
 
@@ -357,6 +358,21 @@ class UserPostController extends Controller
         $post_uuid = $post->uuid ?? null;
 
         $response_msg = 'Post has been shared successfully!';
+
+        $post_user_id = $parent_post->user_id ?? null;
+
+        if($post_user_id != $this->user->id){
+            $PostUser = User::find($post_user_id);
+            
+            $notoficationParams = [];
+            $notoficationParams['post_id'] = $parent_post->id;
+            $notoficationParams['post_uuid'] = $post_uuid;
+            $notoficationParams['user_id'] = $post_user_id;
+            $notoficationParams['user_uuid'] = $PostUser->uuid ?? null;
+            $notoficationParams['shared_by'] = $this->user->uuid ?? null;
+
+            $PostUser->notify(new SharePostNotification($notoficationParams));
+        }
 
         return response()->json([
             'message' => $response_msg,
