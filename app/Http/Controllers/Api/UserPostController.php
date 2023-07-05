@@ -22,6 +22,7 @@ use App\Helpers\PostHelper;
 
 use App\Notifications\LikePostNotification;
 use App\Notifications\SharePostNotification;
+use App\Notifications\CommentPostNotification;
 
 class UserPostController extends Controller
 {
@@ -218,9 +219,9 @@ class UserPostController extends Controller
             return response()->json(['success' => false, 'message' => 'Invalid request!'], 400);
         }
 
-        $check_post = UserPost::where('uuid', $post_uuid)->exists();
+        $post = UserPost::where('uuid', $post_uuid)->first();
 
-        if( !$check_post ){
+        if( !isset($post->id) ){
             return response()->json(['success' => false, 'message' => 'No post found!'], 400);
         }
 
@@ -256,9 +257,43 @@ class UserPostController extends Controller
 
         if( !is_null($parent_uuid) ){
             $response_message = 'You have replied to the comment uuid ' . $parent_uuid;
+
+            $post_user_id = $post->user_id;
+            $parent_comment_user = User::where('uuid', $parent_comment->user_uuid)->first();
+            
+            //if($parent_comment_user->id != $this->user->id){
+                $PostUser = User::find($post_user_id);
+                
+                $notoficationParams = [];
+                $notoficationParams['post_id'] = $post->id;
+                $notoficationParams['post_uuid'] = $post->uuid;
+                $notoficationParams['user_id'] = $post_user_id;
+                $notoficationParams['user_uuid'] = $PostUser->uuid ?? null;
+                $notoficationParams['comment_by'] = $parent_comment->user_uuid ?? null;
+                $notoficationParams['reply_by'] = $this->user->uuid ?? null;
+                $notoficationParams['event'] = 'post.comment.reply';
+    
+                $PostUser->notify(new CommentPostNotification($notoficationParams));
+            //}
         }
         else{
             $response_message = 'Comment has been added successfully!';
+
+            $post_user_id = $post->user_id;
+            
+            if($post_user_id != $this->user->id){
+                $PostUser = User::find($post_user_id);
+                
+                $notoficationParams = [];
+                $notoficationParams['post_id'] = $post->id;
+                $notoficationParams['post_uuid'] = $post->uuid;
+                $notoficationParams['user_id'] = $post_user_id;
+                $notoficationParams['user_uuid'] = $PostUser->uuid ?? null;
+                $notoficationParams['comment_by'] = $this->user->uuid ?? null;
+                $notoficationParams['event'] = 'post.comment';
+    
+                $PostUser->notify(new CommentPostNotification($notoficationParams));
+            }
         }
 
         $getComment = Comments::find($comment->id);
