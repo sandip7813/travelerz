@@ -169,7 +169,7 @@ class ChatController extends Controller
                                             })
                                             ->pluck('chat_id')->toArray();
         
-        $participents = ChatParticipant::with('user')
+        $participents = ChatParticipant::with(['user', 'chat_room.lastMessage.user'])
                                         ->where('user_id', '!=', $this->user->id)
                                         ->get();
         
