@@ -163,13 +163,11 @@ class ChatController extends Controller
 
     public function participantsList(){
         $singleChatRooms = ChatParticipant::where('user_id', $this->user->id)
-                                            ->whereHas('chat_room', function ($query) {
-                                                $query->whereNull('move_uuid');
-                                                $query->whereNotNull('name');
-                                            })
+                                            ->whereHas('single_chat')
                                             ->pluck('chat_id')->toArray();
         
-        $participents = ChatParticipant::with(['user', 'chat_room.lastMessage.user'])
+        $participents = ChatParticipant::whereHas('single_chat.lastMessage')
+                                        ->with(['user', 'single_chat.lastMessage.user'])
                                         ->where('user_id', '!=', $this->user->id)
                                         ->get();
         

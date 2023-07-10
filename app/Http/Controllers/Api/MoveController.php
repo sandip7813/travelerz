@@ -148,11 +148,12 @@ class MoveController extends Controller
 
         $move->save();
 
-        $invited_members = $request->invited_members ?? [];
+        $invited_members = $request->invited_members ?? null;
 
-        if( !is_null($move_uuid) && !empty($invited_members) ){
-            $invited_users = User::whereIn('id', $invited_members)->get();
-            $move->invitees()->attach($invited_users);
+        if( !is_null($move_uuid) && !is_null($invited_members) ){
+            $invited_array = explode(',', $invited_members);
+            $invited_users = User::whereIn('id', $invited_array)->get();
+            $move->invitees()->sync($invited_users,);
 
             ChatHelper::createChatRoomFromMove($move_uuid);
         }
@@ -301,6 +302,7 @@ class MoveController extends Controller
     public function mySavedMoves(Request $request){
         $my_saved_moves = Bookmark::with('move')->where('user_uuid', $this->user->uuid)
                                     ->orderBy('updated_at', 'DESC')->paginate(25);
+        
         return response()->json($my_saved_moves, 200);
     }
 
@@ -347,6 +349,16 @@ class MoveController extends Controller
         return response()->json([
             'message' => 'Status updated successfully!',
         ], 200); 
+    }
+
+    public function hitList(){
+        $hitList = Move::select('location', \DB::raw('count(*) as total'))
+                        ->groupBy('location')
+                        ->orderBy('total', 'DESC')
+                        ->limit(4)
+                        ->get();
+        
+        return response()->json($hitList, 200);
     }
 
 }

@@ -87,6 +87,7 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/my/saved-moves', [MoveController::class, 'mySavedMoves']);
     Route::get('/move/invited', [MoveController::class, 'movesInvited']);
     Route::post('/move/update-invite-status', [MoveController::class, 'updateInviteStatus']);
+    Route::get('/move/hit-list', [MoveController::class, 'hitList']);
 
     Route::get('/payment/get-details', [MembershipController::class, 'getPaymentDetails']);
     Route::post('/stripe/generate-customer', [MembershipController::class, 'generateStripeCustomer']);

@@ -23,4 +23,10 @@ class ChatParticipant extends Model
     public function chat_room(){
         return $this->belongsTo(Chat::class, 'chat_id');
     }
+
+    public function single_chat(){
+        return $this->belongsTo(Chat::class, 'chat_id')
+                    ->whereNull('move_uuid')
+                    ->whereNotNull('name');
+    }
 }

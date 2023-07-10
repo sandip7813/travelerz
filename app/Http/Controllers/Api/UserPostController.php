@@ -261,7 +261,7 @@ class UserPostController extends Controller
             $post_user_id = $post->user_id;
             $parent_comment_user = User::where('uuid', $parent_comment->user_uuid)->first();
             
-            //if($parent_comment_user->id != $this->user->id){
+            if($parent_comment_user->id != $this->user->id){
                 $PostUser = User::find($post_user_id);
                 
                 $notoficationParams = [];
@@ -274,7 +274,7 @@ class UserPostController extends Controller
                 $notoficationParams['event'] = 'post.comment.reply';
     
                 $PostUser->notify(new CommentPostNotification($notoficationParams));
-            //}
+            }
         }
         else{
             $response_message = 'Comment has been added successfully!';
