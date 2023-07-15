@@ -9,6 +9,7 @@ use App\Models\Medias;
 use App\Models\PostLikes;
 use App\Models\Comments;
 use App\Models\UserPost;
+use App\Models\Interest;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -56,5 +57,9 @@ class UserPost extends Model
     public function liked_by_me(){
         return $this->hasMany(PostLikes::class, 'post_uuid', 'uuid')
                     ->where('user_uuid', auth('api')->user()->uuid);
+    }
+
+    public function interests(){
+        return $this->belongsToMany(Interest::class, 'interest_post', 'user_post_id', 'interest_id');
     }
 }

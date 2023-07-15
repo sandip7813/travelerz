@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Models\User;
+use App\Models\UserPost;
 
 class Interest extends Model
 {
@@ -32,5 +33,9 @@ class Interest extends Model
 
     public function users(){
         return $this->belongsToMany(User::class);
+    }
+
+    public function posts(){
+        return $this->belongsToMany(Interest::class, 'interest_post', 'user_post_id', 'interest_id');
     }
 }

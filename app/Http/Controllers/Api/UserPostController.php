@@ -10,6 +10,7 @@ use App\Models\UserPost;
 use App\Models\PostLikes;
 use App\Models\Comments;
 use App\Models\User;
+use App\Models\Interest;
 
 use Auth;
 use Validator;
@@ -108,6 +109,7 @@ class UserPostController extends Controller
 
     public function createUpdatePost(Request $request){
         $post_uuid = $request->post_uuid ?? null;
+        $interests = $request->interests ?? null;
 
         $post_array = [
             'content' => $request->content ?? null,
@@ -142,6 +144,12 @@ class UserPostController extends Controller
             $post_uuid = $post->uuid ?? null;
 
             $response_msg = 'Post has been added successfully!';
+        }
+
+        if(!is_null($interests)){
+            $interest_array = explode(',', $interests);
+            $interests_data = Interest::whereIn('id', $interest_array)->get();
+            $post->interests()->sync($interests_data);
         }
 
         return response()->json([
@@ -331,8 +339,20 @@ class UserPostController extends Controller
         ], 200);
     }
 
-    public function showAllPosts(){
-        return UserPost::with(['pictures', 'shared', 'created_by', 'liked_by_me'])
+    public function showAllPosts(Request $request){
+        $interests = $request->interests ?? null;
+
+        if(!is_null($interests)){
+            $posts_qry = UserPost::whereHas('interests', function($query) use($interests) {
+                                $interests_array = explode(',', $interests);
+                                $query->whereIn('id', $interests_array);
+                            });
+        }
+        else{
+            $posts_qry = new UserPost();
+        }
+
+        return $posts_qry->with(['interests', 'pictures', 'shared', 'created_by', 'liked_by_me'])
                         ->withCount(['likes', 'Comments', 'shared'])
                         ->where('status', '1')
                         ->orderBy('updated_at', 'DESC')

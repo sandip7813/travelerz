@@ -153,7 +153,7 @@ class MoveController extends Controller
         if( !is_null($move_uuid) && !is_null($invited_members) ){
             $invited_array = explode(',', $invited_members);
             $invited_users = User::whereIn('id', $invited_array)->get();
-            $move->invitees()->sync($invited_users,);
+            $move->invitees()->sync($invited_users);
 
             ChatHelper::createChatRoomFromMove($move_uuid);
         }
