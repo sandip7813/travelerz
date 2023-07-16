@@ -209,19 +209,19 @@ class MoveController extends Controller
                     ->first();
     }
 
-    public function getMyMoves(){
-        return $this->user->moves()->orderBy('move_on', 'DESC')->paginate(25);
+    public function getMyMoves(Request $request){
+        //return $this->user->moves()->orderBy('move_on', 'DESC')->paginate(25);
 
-        /* $move_date = $request->move_date ?? null;
+        $category = $request->category ?? null;
         $move_qry = $this->user->moves();
 
-        if( !is_null($move_date) ){
-            $move_qry->whereDate('move_on', \Carbon\Carbon::createFromFormat('d/m/Y', $move_date));
+        if( !is_null($category) ){
+            $move_qry->where('category_id', $category);
         }
         
         $moves = $move_qry->orderBy('move_on', 'DESC')->paginate(25);
 
-        return response()->json($moves, 200); */
+        return response()->json($moves, 200);
     }
 
     public function deleteInvited(Request $request){
