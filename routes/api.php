@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+//++++++++++++++++++++++++++++++ AUTH :: Start ++++++++++++++++++++++++++++++//
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -42,15 +43,19 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function(){
     Route::post('/reset-password-submit', [AuthController::class, 'resetPasswordSubmit']);
     Route::post('/social/login', [AuthController::class, 'socialLogin']);
 });
+//++++++++++++++++++++++++++++++ AUTH :: End ++++++++++++++++++++++++++++++//
 
 Route::group(['middleware' => 'api'], function(){
+    //++++++++++++++++++++++++++++++ MY PROFILE :: Start ++++++++++++++++++++++++++++++//
     Route::get('/my/profile', [UserController::class, 'myProfile']);
     Route::post('/my/edit-profile', [UserController::class, 'editProfile']);
     Route::post('/my/upload-profile-picture', [UserController::class, 'uploadProfilePicture']);
     Route::post('/my/upload-banner-picture', [UserController::class, 'uploadBannerPicture']);
     Route::post('/my/delete-picture', [UserController::class, 'deletePicture']);
     Route::get('/my/interests', [UserController::class, 'myInterests']);
+    //++++++++++++++++++++++++++++++ MY PROFILE :: End ++++++++++++++++++++++++++++++//
 
+    //++++++++++++++++++++++++++++++ USER PROFILE :: Start ++++++++++++++++++++++++++++++//
     Route::post('/user/add-interest', [UserController::class, 'addInterest']);
     Route::post('/user/follow', [UserController::class, 'followUser']);
     Route::post('/user/unfollow', [UserController::class, 'unfollowUser']);
@@ -60,7 +65,9 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/user/{uuid}/details', [UserController::class, 'userDetails']);
     Route::get('/user/{recipient}/send-sms', [UserController::class, 'sendSMS']);
     Route::get('/user/update-fcm-token', [UserController::class, 'updateFcmToken']);
+    //++++++++++++++++++++++++++++++ USER PROFILE :: End ++++++++++++++++++++++++++++++//
 
+    //++++++++++++++++++++++++++++++ POST :: Start ++++++++++++++++++++++++++++++//
     Route::post('/post/upload-picture', [UserPostController::class, 'uploadPostPicture']);
     Route::post('/post/delete-picture', [UserPostController::class, 'deletePostPicture']);
     Route::post('/post/create-update', [UserPostController::class, 'createUpdatePost']);
@@ -75,7 +82,9 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/post/{uuid}/details', [UserPostController::class, 'postDetails']);
     Route::post('/post/most-liked', [UserPostController::class, 'mostLikedPosts']);
     Route::get('/my-post/most-liked', [UserPostController::class, 'myMostLikedPosts']);
+    //++++++++++++++++++++++++++++++ POST :: End ++++++++++++++++++++++++++++++//
 
+    //++++++++++++++++++++++++++++++ MOVE :: Start ++++++++++++++++++++++++++++++//
     Route::post('/move/create', [MoveController::class, 'createMove']);
     Route::post('/move/edit', [MoveController::class, 'editMove']);
     Route::get('/move/{uuid}/details', [MoveController::class, 'moveDetails']);
@@ -87,21 +96,28 @@ Route::group(['middleware' => 'api'], function(){
     Route::get('/my/saved-moves', [MoveController::class, 'mySavedMoves']);
     Route::get('/move/invited', [MoveController::class, 'movesInvited']);
     Route::post('/move/update-invite-status', [MoveController::class, 'updateInviteStatus']);
-    Route::get('/move/hit-list', [MoveController::class, 'hitList']);
+    Route::post('/move/trending', [MoveController::class, 'trending']);
+    //++++++++++++++++++++++++++++++ MOVE :: End ++++++++++++++++++++++++++++++//
 
+    //++++++++++++++++++++++++++++++ PAYMENT :: Start ++++++++++++++++++++++++++++++//
     Route::get('/payment/get-details', [MembershipController::class, 'getPaymentDetails']);
     Route::post('/stripe/generate-customer', [MembershipController::class, 'generateStripeCustomer']);
     Route::post('/payment/save-details', [MembershipController::class, 'savePaymentDetails']);
+    //++++++++++++++++++++++++++++++ PAYMENT :: End ++++++++++++++++++++++++++++++//
 
+    //++++++++++++++++++++++++++++++ CHAT :: Start ++++++++++++++++++++++++++++++//
     Route::post('/chat-room', [ChatController::class, 'chatRoom']);
     Route::post('/create-chat-room', [ChatController::class, 'store']);
     Route::get('/chat/room/{id}', [ChatController::class, 'show']);
     Route::get('/chat/{room_id}/message', [ChatController::class, 'showMessages']);
     Route::post('/send-chat-message', [ChatMessageController::class, 'store']);
     Route::get('/chat/participants', [ChatController::class, 'participantsList']);
+    //++++++++++++++++++++++++++++++ CHAT :: End ++++++++++++++++++++++++++++++//
 
+    //++++++++++++++++++++++++++++++ NOTIFICATION :: Start ++++++++++++++++++++++++++++++//
     Route::post('/notifications', [NotificationController::class, 'getUserNotifications']);
     Route::post('/notification/make-read', [NotificationController::class, 'markNotificationsAsRead']);
+    //++++++++++++++++++++++++++++++ NOTIFICATION :: End ++++++++++++++++++++++++++++++//
 });
 
 Route::post('/category/single', [CategoryController::class, 'getCategory']);

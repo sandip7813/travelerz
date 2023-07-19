@@ -366,14 +366,24 @@ class MoveController extends Controller
         ], 200); 
     }
 
-    public function hitList(){
-        $hitList = Move::select('location', \DB::raw('count(*) as total'))
-                        ->groupBy('location')
-                        ->orderBy('total', 'DESC')
-                        ->limit(4)
-                        ->get();
+    public function trending(Request $request){
+        $trendingCategory = Move::select('category_id', \DB::raw('count(*) as totalMoves'))
+                        ->groupBy('category_id')
+                        ->orderBy('totalMoves', 'DESC')
+                        ->first();
         
-        return response()->json($hitList, 200);
+        $categoryId = $trendingCategory->category_id ?? null;
+
+        $trendingMoves = new \stdClass();
+
+        if( !is_null($categoryId) ){
+            $trendingMoves = Move::with(['banner', 'category', 'created_by', 'invitees'])
+                                ->where('status', '1')
+                                ->where('category_id', $categoryId)
+                                ->orderBy('move_on', 'DESC')->paginate(25);
+        }
+        
+        return response()->json($trendingMoves, 200);
     }
 
 }
