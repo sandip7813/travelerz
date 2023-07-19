@@ -18,7 +18,9 @@ use Auth;
 use Validator;
 use Image;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File; 
+use Illuminate\Support\Facades\File;
+
+use App\Notifications\MoveInviteeNotification;
 
 class MoveController extends Controller
 {
@@ -73,6 +75,19 @@ class MoveController extends Controller
             $move->invitees()->attach($invited_users);
 
             ChatHelper::createChatRoomFromMove($move_uuid);
+
+            if( !empty($invited_users) ){
+                foreach($invited_users as $invitd_usr){
+                    $notoficationParams = [];
+                    $notoficationParams['move_id'] = $move->id;
+                    $notoficationParams['move_uuid'] = $move_uuid;
+                    $notoficationParams['user_id'] = $invitd_usr->id;
+                    $notoficationParams['user_uuid'] = $invitd_usr->uuid ?? null;
+                    $notoficationParams['invited_by'] = $move->created_by->uuid ?? null;
+
+                    $invitd_usr->notify(new MoveInviteeNotification($notoficationParams));
+                }
+            }
         }
 
         $field_name = 'move_banner';
@@ -117,9 +132,9 @@ class MoveController extends Controller
             'title' => 'required',
             'move_on'=> 'required|date_format:Y-m-d H:i:s',
             'category' => 'required',
-            'location' => 'required',
+            /* 'location' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required',
+            'longitude' => 'required', */
             'privacy' => 'required',
         ]);
 
@@ -129,7 +144,7 @@ class MoveController extends Controller
 
         $move_uuid = $request->uuid ?? null;
 
-        $move = Move::with('banner')
+        $move = Move::with(['banner', 'invitees'])
                     ->where('uuid', $move_uuid)
                     ->where('user_id', $this->user->id)
                     ->first();
