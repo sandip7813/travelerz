@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 
 use App\Notifications\MoveInviteeNotification;
+use App\Notifications\MoveSameLocationNotification;
 
 class MoveController extends Controller
 {
@@ -76,6 +77,7 @@ class MoveController extends Controller
 
             ChatHelper::createChatRoomFromMove($move_uuid);
 
+            //+++++++++++++++++ INVITED USERS NOTIFICATIONS :: Start +++++++++++++++++//
             if( !empty($invited_users) ){
                 foreach($invited_users as $invitd_usr){
                     $notoficationParams = [];
@@ -88,6 +90,29 @@ class MoveController extends Controller
                     $invitd_usr->notify(new MoveInviteeNotification($notoficationParams));
                 }
             }
+            //+++++++++++++++++ INVITED USERS NOTIFICATIONS :: End +++++++++++++++++//
+
+            //+++++++++++++++++ SIMILAR LOCATION USERS NOTIFICATIONS :: Start +++++++++++++++++//
+            $similarLocationUserIds = Move::where('location', $location)
+                                            ->where('uuid', '!=', $move_uuid)
+                                            ->where('user_id', '!=', $this->user->id)
+                                            ->where('status', 1)
+                                            ->groupBy('user_id')->pluck('user_id');
+            
+            $similarLocationUsers = User::whereIn('id', $similarLocationUserIds)->get();
+
+            if( !empty($similarLocationUsers) ){
+                foreach($similarLocationUsers as $similarLocationUser){
+                    $notoficationParams = [];
+                    $notoficationParams['move_id'] = $move->id;
+                    $notoficationParams['move_uuid'] = $move_uuid;
+                    $notoficationParams['user_id'] = $similarLocationUser->id;
+                    $notoficationParams['user_uuid'] = $similarLocationUser->uuid ?? null;
+
+                    $similarLocationUser->notify(new MoveSameLocationNotification($notoficationParams));
+                }
+            }
+            //+++++++++++++++++ SIMILAR LOCATION USERS NOTIFICATIONS :: End +++++++++++++++++//
         }
 
         $field_name = 'move_banner';
@@ -132,9 +157,9 @@ class MoveController extends Controller
             'title' => 'required',
             'move_on'=> 'required|date_format:Y-m-d H:i:s',
             'category' => 'required',
-            /* 'location' => 'required',
+            'location' => 'required',
             'latitude' => 'required',
-            'longitude' => 'required', */
+            'longitude' => 'required',
             'privacy' => 'required',
         ]);
 
@@ -225,8 +250,6 @@ class MoveController extends Controller
     }
 
     public function getMyMoves(Request $request){
-        //return $this->user->moves()->orderBy('move_on', 'DESC')->paginate(25);
-
         $category = $request->category ?? null;
         $move_qry = $this->user->moves();
 
@@ -323,17 +346,6 @@ class MoveController extends Controller
 
     public function movesInvited(){
         return $this->user->moves_invited()->orderBy('move_on', 'DESC')->paginate(25);
-
-        /* $move_date = $request->move_date ?? null;
-        $move_qry = $this->user->moves_invited();
-
-        if( !is_null($move_date) ){
-            $move_qry->whereDate('move_on', \Carbon\Carbon::createFromFormat('d/m/Y', $move_date));
-        }
-        
-        $moves = $move_qry->orderBy('move_on', 'DESC')->paginate(25);
-
-        return response()->json($moves, 200); */
     }
 
     public function updateInviteStatus(Request $request){
