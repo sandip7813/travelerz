@@ -66,6 +66,7 @@ class ChatMessageController extends Controller
                     $notoficationParams = [];
                     $notoficationParams['message_by_user_id'] = $this->user->id;
                     $notoficationParams['message_by_user_uuid'] = $this->user->uuid ?? null;
+                    $notoficationParams['message'] = $request->message ?? null;
 
                     $chatUser->notify(new ChatMessageNotification($notoficationParams));
                 }

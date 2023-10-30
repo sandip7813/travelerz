@@ -155,7 +155,7 @@ class ChatController extends Controller
         $messages = ChatMessage::where('chat_id', $roomId)
                                 ->with('user')
                                 ->latest('created_at')
-                                ->orderBy('updated_at', 'DESC')
+                                ->orderBy('created_at', 'DESC')
                                 ->paginate(25);
         
         return response()->json($messages, 200);
