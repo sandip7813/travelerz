@@ -25,11 +25,15 @@ class NotificationController extends Controller
         } else {
             $notifications = $getUser->notifications;
         }
-    
+
         if ($page_limit != null) {
-            return $notifications->take($page_limit);
+            //return $notifications->take($page_limit);
+            //return $notifications->orderBy('updated_at', 'DESC')->take($page_limit)->get();
+            return $notifications->take($page_limit)->sortBy('updated_at', SORT_REGULAR, true);
         } else {
-            return $notifications;
+            //return $notifications;
+            //return $notifications->orderBy('updated_at', 'DESC')->get();
+            return $notifications->sortBy('updated_at', SORT_REGULAR, true);
         }
     }
 
