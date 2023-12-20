@@ -55,4 +55,14 @@ class LikePostNotification extends Notification
 
         return event(new LikePost(new BroadcastMessage($notificationData), $notifiable));
     }
+    public function toDatabase($notifiable)
+    {
+        \Log::info($this->data['liked_by']);
+        //\Log::info(print_r($this->data, true));
+        return [
+            'data' => [
+                'notification_by' => $this->data['liked_by'] ?? null,
+            ],
+        ];
+    }
 }
