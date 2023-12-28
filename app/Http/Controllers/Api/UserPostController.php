@@ -16,7 +16,7 @@ use Auth;
 use Validator;
 use Image;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File; 
+use Illuminate\Support\Facades\File;
 
 use App\Helpers\UserHelper;
 use App\Helpers\PostHelper;
@@ -38,7 +38,7 @@ class UserPostController extends Controller
         if(!$request->hasFile($field_name)) {
             return response()->json(['success' => false, 'message' => 'No file uploaded!'], 400);
         }
-        
+
         //++++++++++++++++ CREATE POST :: Start ++++++++++++++++//
         $post_uuid = $request->post_uuid ?? null;
 
@@ -72,7 +72,7 @@ class UserPostController extends Controller
 
         $extension = $mediaFiles->getClientOriginalExtension();
         $check = in_array($extension, $allowedfileExtension);
-        
+
         if( $check ) {
             $upload_picture = UserHelper::uploadUserImages($field_name, $mediaFiles);
             $file_uuid = $upload_picture['file_uuid'] ?? null;
@@ -124,7 +124,7 @@ class UserPostController extends Controller
                                     ->where('status', '!=', '2');
 
             $post = $post_where->first();
-            
+
             if( !isset($post->id) ){
                 return response()->json(['success' => false, 'message' => 'Post not found!'], 400);
             }
@@ -134,7 +134,7 @@ class UserPostController extends Controller
             }
 
             $post_where->update($post_array);
-            
+
             $response_msg = 'Post has been updated successfully!';
         }
         else{
@@ -158,8 +158,18 @@ class UserPostController extends Controller
         ], 200);
     }
 
-    public function getMyPosts(){
-        $posts = $this->user->posts()->orderBy('updated_at', 'DESC')->paginate(25);
+    public function getMyPosts(Request $request){
+        $interests = $request->interests ?? null;
+        $post_qry = $this->user->posts()->with('interests');
+
+        if( !is_null($interests) ){
+            $interestIds = explode(',', $interests);
+            $post_qry->whereHas('interests', function ($query) use($interestIds) {
+                $query->whereIn('interests.id', $interestIds);
+            });
+        }
+
+        $posts = $post_qry->orderBy('updated_at', 'DESC')->paginate(25);
         return response()->json($posts, 200);
     }
 
@@ -178,7 +188,7 @@ class UserPostController extends Controller
 
         $post_like_qry = PostLikes::where('post_uuid', $post_uuid)
                                 ->where('user_uuid', $this->user->uuid);
-        
+
         $post_like = $post_like_qry->exists();
 
         if( $post_like ){
@@ -193,7 +203,7 @@ class UserPostController extends Controller
 
             if($post_user_id != $this->user->id){
                 $PostUser = User::find($post_user_id);
-                
+
                 $notoficationParams = [];
                 $notoficationParams['post_id'] = $check_post->id;
                 $notoficationParams['post_uuid'] = $post_uuid;
@@ -247,7 +257,7 @@ class UserPostController extends Controller
             $parent_comment = Comments::where('uuid', $parent_uuid)
                                         ->where('is_active', 1)
                                         ->first();
-            
+
             $parent_id = isset($parent_comment->id) ? $parent_comment->id : null;
 
             if( is_null($parent_id) ){
@@ -268,10 +278,10 @@ class UserPostController extends Controller
 
             $post_user_id = $post->user_id;
             $parent_comment_user = User::where('uuid', $parent_comment->user_uuid)->first();
-            
+
             if($parent_comment_user->id != $this->user->id){
                 $PostUser = User::find($post_user_id);
-                
+
                 $notoficationParams = [];
                 $notoficationParams['post_id'] = $post->id;
                 $notoficationParams['post_uuid'] = $post->uuid;
@@ -280,7 +290,7 @@ class UserPostController extends Controller
                 $notoficationParams['comment_by'] = $parent_comment->user_uuid ?? null;
                 $notoficationParams['reply_by'] = $this->user->uuid ?? null;
                 $notoficationParams['event'] = 'post.comment.reply';
-    
+
                 $PostUser->notify(new CommentPostNotification($notoficationParams));
             }
         }
@@ -288,10 +298,10 @@ class UserPostController extends Controller
             $response_message = 'Comment has been added successfully!';
 
             $post_user_id = $post->user_id;
-            
+
             if($post_user_id != $this->user->id){
                 $PostUser = User::find($post_user_id);
-                
+
                 $notoficationParams = [];
                 $notoficationParams['post_id'] = $post->id;
                 $notoficationParams['post_uuid'] = $post->uuid;
@@ -299,7 +309,7 @@ class UserPostController extends Controller
                 $notoficationParams['user_uuid'] = $PostUser->uuid ?? null;
                 $notoficationParams['comment_by'] = $this->user->uuid ?? null;
                 $notoficationParams['event'] = 'post.comment';
-    
+
                 $PostUser->notify(new CommentPostNotification($notoficationParams));
             }
         }
@@ -324,7 +334,7 @@ class UserPostController extends Controller
         $comment = Comments::where('uuid', $comment_uuid)
                             ->where('user_uuid', $this->user->uuid)
                             ->first();
-        
+
         if( !isset($comment->id) ){
             return response()->json(['success' => false, 'message' => 'No comment found!'], 400);
         }
@@ -333,7 +343,7 @@ class UserPostController extends Controller
 
         Comments::where('parent_uuid', $comment_uuid)
                 ->delete();
-        
+
         return response()->json([
             'message' => 'Comment deleted successfully!'
         ], 200);
@@ -369,12 +379,12 @@ class UserPostController extends Controller
         if( !$check_post ){
             return response()->json(['success' => false, 'message' => 'No post found!'], 400);
         }
-        
+
         $comments = Comments::with(['descendants', 'comment_by'])
                                 ->where('post_uuid', $post_uuid)
                                 ->whereNull('parent_uuid')
                                 ->get()->toArray();
-        
+
         return response()->json($comments, 200);
     }
 
@@ -418,7 +428,7 @@ class UserPostController extends Controller
 
         if($post_user_id != $this->user->id){
             $PostUser = User::find($post_user_id);
-            
+
             $notoficationParams = [];
             $notoficationParams['post_id'] = $parent_post->id;
             $notoficationParams['post_uuid'] = $post_uuid;
@@ -445,7 +455,7 @@ class UserPostController extends Controller
                                 ->where('uuid', $post_uuid)
                                 ->where('status', '1')
                                 ->first();
-        
+
         if( !isset($post_details->id) ){
             return response()->json(['success' => false, 'message' => 'No post found to share!'], 400);
         }
@@ -463,7 +473,7 @@ class UserPostController extends Controller
         $user = User::where('uuid', $user_uuid)
                     ->where('role', 0)->where('status', 1)
                     ->first();
-        
+
         $user_id = $user->id ?? null;
 
         if( is_null($user_id) ){
