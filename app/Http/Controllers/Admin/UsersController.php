@@ -44,7 +44,7 @@ class UsersController extends Controller
         }
 
         $users = $users_qry->orderby('id','desc')->paginate(15);
-        
+
         return view('admin.users.index', compact('users'))->with([ 'statusArray' => $this->statusArray ]);
     }
 
@@ -79,7 +79,7 @@ class UsersController extends Controller
     {
         $user = User::with(['profile_picture', 'banner_picture', 'followings', 'followers', 'user_country', 'user_state', 'friends'])
                     ->where('uuid', $uuid)->first();
-        
+
         return view('admin.users.show', compact('user'))->with([ 'statusArray' => $this->statusArray ]);
     }
 
@@ -92,7 +92,7 @@ class UsersController extends Controller
     public function edit($uuid)
     {
         $user = User::where('uuid', $uuid)->first();
-        
+
         return view('admin.users.edit', compact('user'));
     }
 
@@ -166,7 +166,7 @@ class UsersController extends Controller
             }
 
             $user = User::where('uuid', $uuid)->first();
-            $user->delete();            
+            $user->delete();
 
             $response['status'] = 'success';
         } catch (\Exception $e) {
@@ -177,5 +177,19 @@ class UsersController extends Controller
         return response()->json($response);
     }
 
-    
+    public function userPosts(Request $request, $uuid){
+        /* echo $uuid; print_r($request->all());
+        exit; */
+        $user = User::with('profile_picture')->where('uuid', $uuid)->first();
+        $posts = $user->posts_by_user()->orderBy('updated_at', 'DESC')->paginate(25);
+
+        $html_view = view('admin.users._user-posts-tab', compact('user', 'posts'))->render();
+
+        $response['status'] = 'success';
+        $response['html_view'] = $html_view;
+
+        return response()->json($response);
+    }
+
+
 }

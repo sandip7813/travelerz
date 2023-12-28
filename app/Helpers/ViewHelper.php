@@ -22,7 +22,7 @@ if (! function_exists('country_states')) {
                                 ->orWhere('name', $country)
                                 ->orWhere('id', $country)
                                 ->first()->id;
-            
+
             return State::where('country_id', $country_id)->get();
         }
         else{
@@ -34,5 +34,22 @@ if (! function_exists('country_states')) {
 if (! function_exists('user_location')) {
     function user_location($uuid){
         return UserHelper::user_location($uuid);
+    }
+}
+
+if (! function_exists('generate_image_url')) {
+    function generate_image_url($image){
+        $image_dir = 'images/';
+
+        $dir_main = config('filesystems.image_folder.main') . '/';
+        $dir_1000x600 = config('filesystems.image_folder.1000x600') . '/';
+        $dir_200x160 = config('filesystems.image_folder.200x160') . '/';
+
+        return [
+            'file_name' => $image,
+            'file_url_main' => url($image_dir . $dir_main . $image),
+            'file_url_1000x600' => url($image_dir . $dir_1000x600 . $image),
+            'file_url_200x160' => url($image_dir . $dir_200x160 . $image),
+        ];
     }
 }

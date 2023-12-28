@@ -1,10 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('styles')
-<link href="{{ asset('css/bootstrap-toggle.min.css') }}" rel="stylesheet">
-<!-- Select2 -->
-<link rel="stylesheet" href="{{ asset('admin/plugins/select2/css/select2.min.css') }}">
-<link rel="stylesheet" href="{{ asset('admin/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
+<link rel="stylesheet" href="{{ asset('admin/plugins/ekko-lightbox/ekko-lightbox.css') }}">
 @endsection
 
 @section('content')

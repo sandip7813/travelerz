@@ -58,6 +58,7 @@ Route::middleware(['auth','user-role:admin'])->prefix('admin')->group(function()
     Route::post('myaccount/change-password-submit', [MyAccountController::class, 'changePasswordSubmit'])->name('admin.myaccount.change-password-submit');
 
     Route::resource('users', UsersController::class, ['names' => 'admin.users']);
+    Route::get('user/{uuid}/posts', [UsersController::class, 'userPosts'])->name('admin.user.posts');
 
     Route::get('generate-state-list-dropdown', [GeneralController::class, 'generateStateListDropdown'])->name('admin.generate-state-list-dropdown');
 });
