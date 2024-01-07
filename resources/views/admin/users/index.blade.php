@@ -93,7 +93,16 @@
                     <tbody>
                       @foreach($users as $user)
                         @php
-                          $profile_pic_url = ( isset($user->profile_picture->name) ) ? url('images/' . config('filesystems.image_folder.200x160') . '/' . $user->profile_picture->name) : url('images/no-image.jpg');
+                            //$profile_pic_url = ( isset($user->profile_picture->name) ) ? url('images/' . config('filesystems.image_folder.200x160') . '/' . $user->profile_picture->name) : url('images/no-image.jpg');
+                            $profile_pic_url = ( isset($user->profile_picture->name) ) ? generate_image_url($user->profile_picture->name) : no_image_url();
+
+                            if(isset($user->profile_picture->name)){
+                                $profile_pic_url_array = generate_image_url($user->profile_picture->name);
+                                $profile_pic_url = $profile_pic_url_array['file_url_200x160'];
+                            }
+                            else{
+                                $profile_pic_url = no_image_url();
+                            }
                         @endphp
                         <tr>
                           <td>
@@ -104,7 +113,7 @@
                             </ul>
                           </td>
                           <td>{{ $user->name }}</td>
-                          <td>{{ $user->email }} 
+                          <td>{{ $user->email }}
                             @if( !is_null($user->email_verified_at) )
                               <a class="ml-3" data-toggle="tooltip" data-placement="top" title="Email verified"><i class="fas fa-check"></i></a>
                             @else

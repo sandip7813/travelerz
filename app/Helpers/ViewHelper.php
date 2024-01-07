@@ -53,3 +53,10 @@ if (! function_exists('generate_image_url')) {
         ];
     }
 }
+
+
+if (! function_exists('no_image_url')) {
+    function no_image_url(){
+        return url('images/no-image.jpg');
+    }
+}
