@@ -49,7 +49,7 @@ else{
                     @endphp
                     <div class="col-sm-2">
                         <a href="{{ $image_url['file_url_main'] }}" data-toggle="lightbox" data-gallery="gallery">
-                            <img src="{{ $image_url['file_url_200x160'] }}" class="img-fluid mb-2" />
+                            <img src="{{ $image_url['file_url_200x160'] }}" class="img-fluid mb-2"/>
                         </a>
                     </div>
                 @endforeach
