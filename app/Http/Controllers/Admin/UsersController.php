@@ -178,14 +178,23 @@ class UsersController extends Controller
     }
 
     public function userPosts(Request $request, $uuid){
-        /* echo $uuid; print_r($request->all());
-        exit; */
+        $items_per_page = config('common.items_per_page');
+        $start = $request->start ?? 0;
+
         $user = User::with('profile_picture')->where('uuid', $uuid)->first();
-        $posts = $user->posts_by_user()->orderBy('updated_at', 'DESC')->paginate(25);
+
+        if($start > 0){
+            $posts = $user->posts_by_user()->orderBy('updated_at', 'DESC')->offset($start)->limit($items_per_page)->get();
+        }
+        else{
+            $posts = $user->posts_by_user()->orderBy('updated_at', 'DESC')->paginate($items_per_page);
+        }
 
         $html_view = view('admin.users._user-posts-tab', compact('user', 'posts'))->render();
 
         $response['status'] = 'success';
+        $response['next'] = $start + $items_per_page;
+        $response['records_count'] = $posts->count();
         $response['html_view'] = $html_view;
 
         return response()->json($response);

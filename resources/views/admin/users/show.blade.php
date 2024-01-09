@@ -163,7 +163,12 @@
                   </div>
                   <!-- /.tab-pane -->
                   <div class="tab-pane" id="posts">
-                        <!-- The post -->
+                    <div class="post" id="posts-container"></div>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <button id="load_more_button" class="btn btn-primary">Load More</button>
+                        </div>
+                    </div>
                   </div>
                   <!-- /.tab-pane -->
 
@@ -195,22 +200,55 @@ $(function () {
     });
 
 });
+
 $(document).ready(function(){
+    var start = 10;
+    var items_per_page = {{ config('common.items_per_page') }};
+
     $('#posts_tab').on('click', function(e){
         $.ajax({
             dataType: 'json',
             type: 'GET',
             url: "{{ route('admin.user.posts', $user->uuid) }}",
             success:function(data) {
-                $('#posts').html(data.html_view);
-                /* this_obj.bootstrapToggle('enable');
-                if( data.status == 'failed' ){
-                    swal_fire_error(data.error.message);
-                    return false;
+                if(data.status == 'success'){
+                    $('#posts-container').html(data.html_view);
                 }
-                else if( data.status == 'success' ){
-                    swal_fire_success('Category status updated successfully!');
-                } */
+            }
+        });
+    });
+
+    $(document).on('click', '#load_more_button', function() {
+        thisObj = $(this);
+
+        $.ajax({
+            url: "{{ route('admin.user.posts', $user->uuid) }}",
+            method: 'GET',
+            data: {
+                start: start
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                thisObj.html('Loading...');
+                thisObj.attr('disabled', true);
+            },
+            success: function(data) {
+                if(data.status == 'success'){
+                    $('#posts-container').append($(data.html_view).hide().fadeIn(1000));
+
+                    if(data.records_count < items_per_page){
+                        thisObj.html('Load More').remove();
+                    }
+                    else{
+                        thisObj.html('Load More');
+                        thisObj.attr('disabled', false);
+                        start = data.next;
+                    }
+                }
+                else {
+                    thisObj.html('No More Data Available');
+                    thisObj.attr('disabled', true);
+                }
             }
         });
     });
