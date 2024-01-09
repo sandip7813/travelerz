@@ -14,7 +14,7 @@ else{
     $dp_url = no_image_url();
 }
 @endphp
-<div class="post">{{ $post->id }}
+<div class="post">
     <div class="user-block">
         <img class="img-circle img-bordered-sm" src="{{ $dp_url }}" alt="{{ $post->created_by->name }}">
         <span class="username">
